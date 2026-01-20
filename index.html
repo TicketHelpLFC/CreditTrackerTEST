@@ -134,6 +134,11 @@ body{
   padding:12px;
   background:#0f0f0f;
 }
+
+.item.fixtureTracked{
+  outline:2px solid #f1c40f;
+  outline-offset:0;
+}
 .itemTop{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
 .itemTitle{font-weight:900}
 .itemMeta{color:var(--muted); font-size:12px; margin-top:4px}
@@ -167,19 +172,6 @@ body{
 
 .sep{border:0; height:1px; background:var(--border); margin:14px 0}
 
-.modal{
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:0;
-  background:transparent;
-  width:min(720px, calc(100vw - 20px));
-}
-.modal::backdrop{background:rgba(0,0,0,.55)}
-.modalInner{
-  background:var(--card);
-  border-radius:16px;
-  padding:14px;
-}
 .toggleRow{margin:10px 0}
 .toggle span{margin-left:8px}
 
@@ -218,42 +210,155 @@ body{
 
 .brandLogo{width:34px;height:34px;border-radius:10px;display:block}
 
+
+
+/* Account bar layout (mobile-first) */
+.acctBar{ padding:14px; }
+.acctBarFields{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.acctBarPrimary{ margin-top:14px; }
+.btn.full{ width:100%; }
+
+.acctBarActions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+.btn.sm{
+  padding:8px 10px;
+  font-size:13px;
+  border-radius:12px;
+}
+.btn.ghost.sm{ padding:8px 10px; }
+
+@media (min-width: 720px){
+  .acctBarFields{
+    flex-direction:row;
+    gap:12px;
+  }
+  .acctField{ flex:1; }
+}
+
+/* Settings modal (centered, fixed height + scroll) */
+dialog.modal{
+  border:none;
+  padding:0;
+  background: var(--card);
+  color: var(--text);
+  border-radius:18px;
+  width:min(560px, 94vw);
+  max-height:90vh;
+  overflow:hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+}
+dialog.modal::backdrop{
+  background: rgba(0,0,0,.72);
+}
+.modalInner{
+  padding:18px;
+  max-height:90vh;
+  overflow-y:auto;
+  color: var(--text);
+}
+
+/* Force all modal text to white */
+dialog.modal, dialog.modal *{
+  color: var(--text) !important;
+}
+dialog.modal .hint{
+  opacity:.9;
+}
+dialog.modal input, dialog.modal select, dialog.modal textarea{
+  color: var(--text) !important;
+}
+
+/* Fixtures header actions: smaller buttons */
+.btn.sm, .fileBtn.sm{
+  padding:6px 8px !important;
+  font-size:12px !important;
+  border-radius:10px !important;
+  line-height:1.1 !important;
+}
+
+.buildFooter{
+  margin:18px auto 26px;
+  width: min(980px, 100%);
+  padding: 0 14px;
+  opacity: .75;
+  font-size: 12px;
+  text-align:center;
+}
+
+.headerActions{ display:flex; gap:10px; align-items:center; }
+
+.modalHeader{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.modalTitle{ font-weight:800; font-size:18px; }
+.hr{ height:1px; background: rgba(255,255,255,.08); margin:12px 0; border-radius:999px; }
+
+/* Support modal: iframe embed */
+.formEmbedWrap{
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  overflow:hidden;
+  background: rgba(255,255,255,.03);
+}
+.formEmbed{
+  width:100%;
+  height:560px;
+  border:0;
+  display:block;
+}
+@media (max-width:520px){
+  .formEmbed{ height:620px; }
+  #btnSupport{ padding:8px 10px; font-size:13px; }
+}
+
+/* Make all Support modal text white */
+#supportModal, #supportModal *{ color: var(--text) !important; }
 </style>
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <img class="brandLogo" src="icons/icon-192.png" alt="TicketHelpLFC" />
+      <img class="brandLogo" src="icon.svg" alt="TicketHelpLFC" />
       <div>
         <div class="title">TicketHelpLFC</div>
         <div class="subtitle">Credit Tracker</div>
       </div>
     </div>
-    <button id="btnInstall" class="btn ghost" hidden>⬇️ Install</button>
-    <button id="btnSupport" class="btn ghost">💬 Support &amp; Feedback</button>
+    <div class="headerActions">
+      <button id="btnSupport" class="btn ghost">💬 Support</button>
+      <button id="btnInstall" class="btn ghost" hidden>⬇️ Install</button>
+    </div>
   </header>
 
   <main class="container">
     <!-- Season bar -->
-    <section class="card row space-between">
-      <div class="row gap wrap">
-        <div>
+    <section class="card acctBar">
+      <div class="acctBarFields">
+        <div class="acctField">
           <div class="label">👤 Account</div>
           <select id="accountSelect" class="select"></select>
         </div>
-        <div class="row gap" style="margin-top:8px;">
-          <button type="button" id="btnEditAccount" class="btn">✏️ Edit</button>
-          <button type="button" id="btnDeleteAccount" class="btn danger">🗑️ Delete</button>
-        </div>
-        <div>
+
+        <div class="acctField">
           <div class="label">📅 Season</div>
           <select id="seasonSelect" class="select" data-role="season"></select>
         </div>
       </div>
-      <div class="row gap">
-        <button id="btnAddAccount" class="btn">➕ Add account to track</button>
-        <button id="btnSettings" class="btn ghost">⚙️</button>
+
+      <div class="acctBarPrimary">
+        <button id="btnAddAccount" class="btn full">➕ Add account to track</button>
       </div>
+
+      <div class="acctBarActions">
+        <button type="button" id="btnEditAccount" class="btn sm">✏️ Edit</button>
+        <button type="button" id="btnDeleteAccount" class="btn danger sm">🗑️ Delete</button>
+</div>
     </section>
 
     <!-- Views -->
@@ -286,7 +391,7 @@ body{
         </div>
 
         <div class="fieldLabel" style="margin-top:10px;">AutoCup (HOME only — Away credits still tracked)</div>
-<div class="hint" style="margin-top:10px;">Enter names below. You can also set AutoCup per account (defaults pre-filled).</div>
+<div class="hint" style="margin-top:10px;">Enter names below. AutoCup is saved per account *and per season*.</div>
         <div id="setupNames" class="list" style="margin-top:10px;"></div>
 
         <div class="row gap wrap" style="margin-top:14px;">
@@ -308,6 +413,20 @@ body{
         </div>
         <div id="compBreakdown" class="breakdown"></div>
       </section>
+
+
+<section class="card">
+  <div class="label">📦 Backups</div>
+  <div class="row gap wrap">
+    <button id="btnExportJSON" class="btn">📤 Export JSON</button>
+    <button id="btnExportCSV" class="btn">📤 Export CSV</button>
+    <label class="btn fileBtn">
+      📥 Import JSON
+      <input id="importFile" type="file" accept="application/json" hidden />
+    </label>
+  </div>
+  <div class="hint">“JSON” is best for restoring exactly. “CSV” is for spreadsheets.</div>
+</section>
 </section>
 
     <!-- Matches -->
@@ -409,7 +528,7 @@ body{
           <div>
             <div class="fieldLabel">Credit outcome</div>
             <div class="chips" role="group" aria-label="Credit outcome">
-<input type="hidden" id="creditCounts" value="unsure">
+<input type="hidden" id="creditCredit" value="unsure">
 
               <button type="button" class="chip" data-credit="yes">🟢 Credit</button>
               <button type="button" class="chip" data-credit="no">🔴 No credit</button>
@@ -442,112 +561,101 @@ body{
     </section>
 
     <!-- Settings modal -->
-    <dialog id="settingsModal" class="modal hidden">
-      <div class="modalInner">
+
+
+    <!-- Fixtures -->
+    <section id="viewFixtures" class="view hidden">
+      <section class="card">
         <div class="row space-between">
-          <div class="label">⚙️ Rules & Settings</div>
-          <button id="btnCloseSettings" class="btn ghost">✖️</button>
-        </div>
-
-        <div class="hint">These toggles only affect defaults & hints (your data is still editable).</div>
-
-        <div class="toggleRow">
-          <label class="toggle">
-            <input type="checkbox" id="ruleForwardedNoCredit" checked />
-            <span>Forwarded = No credit (default)</span>
+          <div>
+            <div class="label">📅 Fixtures</div>
+            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
+          </div>
+          <button id="btnReloadFixtures" class="btn ghost sm">🔄 Refresh</button>
+          <label class="btn ghost fileBtn sm">📥 Import fixtures (ICS)
+            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
           </label>
-        </div>
-        <div class="toggleRow">
-          <label class="toggle">
-            <input type="checkbox" id="ruleReturnedNoCredit" checked />
-            <span>Returned = No credit (default)</span>
-          </label>
-        </div>
-        <div class="toggleRow">
-          <label class="toggle">
-            <input type="checkbox" id="ruleHospitalityNoCredit" checked />
-            <span>Hospitality = No credit (default)</span>
-          </label>
+          <button id="btnClearFixtures" class="btn ghost sm">🧹 Clear imported</button>
         </div>
 
-        <hr class="sep"/>
-
-        <div class="label">📦 Backups</div>
-        <div class="row gap wrap">
-          <button id="btnExportJSON2" class="btn">📤 Export JSON</button>
-          <button id="btnExportCSV2" class="btn">📤 Export CSV</button>
-          <label class="btn fileBtn">
-            📥 Import JSON
-            <input id="importFile2" type="file" accept="application/json" hidden />
-          </label>
+        <div class="grid2">
+          <div>
+            <div class="fieldLabel">Show</div>
+            <select id="fixtureShow" class="select">
+              <option value="upcoming" selected>Upcoming</option>
+              <option value="past">Past</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+          <div>
+            <div class="fieldLabel">Filter</div>
+            <select id="fixtureComp" class="select">
+              <option value="" selected>All competitions</option>
+              <option value="PL">PL</option>
+              <option value="UCL">UCL</option>
+              <option value="FAC">FA Cup</option>
+              <option value="LC">League Cup</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
         </div>
 
-        <div class="hint">
-          “JSON” is best for restoring exactly. “CSV” is for spreadsheets.
-        </div>
-      </div>
-    
-      <hr class="sep" />
-      <div id="settingsData">
-        <div class="label">📦 Data</div>
-        <div class="row gap wrap" style="margin-top:8px;">
-          <button id="btnExportJSON" class="btn ghost">📤 Export JSON</button>
-          <button id="btnExportCSV" class="btn ghost">📤 Export CSV</button>
-          <label class="btn ghost fileBtn">
-            📥 Import JSON
-            <input id="importFile" type="file" accept="application/json" hidden />
-          </label>
-        </div>
-        <div class="hint" style="margin-top:6px;">Export/Import is stored locally on this device.</div>
-      </div>
-</dialog>
+        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
+        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
+        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
+      </section>
+    </section>
 
-  <dialog id="supportModal" class="modal">
-    <div class="modalInner">
-      <div class="row space-between" style="align-items:center; gap:10px;">
-        <div>
-          <div class="label">💬 Support &amp; Feedback</div>
-          <div class="hint">If these tools help, you can support the project — and you can send feedback/bugs straight to me.</div>
-        </div>
-        <button id="btnSupportClose" class="btn ghost sm" aria-label="Close">✖️</button>
-      </div>
-
-      <hr class="sep" />
-
-      <div class="label">☕ Support</div>
-      <div class="hint">Buy me a coffee to help cover hosting/time building tools for the community.</div>
-      <div style="margin-top:10px;">
-        <button id="btnBmac" class="btn primary full">Open Buy Me a Coffee</button>
-      </div>
-
-      <hr class="sep" />
-
-      <div class="label">✍️ Send feedback</div>
-      <div class="hint">This uses your email app (mailto) so it works anywhere without a server.</div>
-
-      <div style="margin-top:10px;">
-        <div class="fieldLabel">Your email (optional)</div>
-        <input id="supportEmail" class="input" type="email" placeholder="lfcticketupdates@gmail.com" />
-
-        <div class="fieldLabel" style="margin-top:10px;">Message</div>
-        <textarea id="supportMsg" class="textarea" rows="4" placeholder="Tell me what’s working / what’s broken / feature ideas…"></textarea>
-
-        <div class="row gap wrap" style="margin-top:12px;">
-          <button id="supportSend" class="btn">📩 Send feedback</button>
-        </div>
-      </div>
-
-      <div class="hint" style="margin-top:12px;">No data is uploaded by the app itself. Export/import is stored locally on your device.</div>
+<!-- Support & Feedback -->
+<dialog id="supportModal" class="modal hidden">
+  <div class="modalInner">
+    <div class="modalHeader">
+      <div class="modalTitle">💬 Support & Feedback</div>
+      <button type="button" class="btn ghost sm" id="btnCloseSupport" aria-label="Close">✖</button>
     </div>
-  </dialog>
 
-  </main>
+    <div class="hr"></div>
+
+    <h3 style="margin:0 0 6px;">☕ Support the tools</h3>
+    <div class="hint" style="margin-bottom:10px;">
+      If these tools help you, you can chip in to support hosting + ongoing updates.
+    </div>
+    <button type="button" id="btnBmac" class="btn full">Open Buy Me a Coffee</button>
+
+    <div class="hr" style="margin-top:16px;"></div>
+
+    <h3 style="margin:0 0 6px;">📝 Send feedback</h3>
+    <div class="hint" style="margin-bottom:10px;">
+      Fill this in and it’ll send straight to me via Google Forms.
+    </div>
+
+    <div class="formEmbedWrap">
+      <iframe
+        id="feedbackFormFrame"
+        class="formEmbed"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSeUg49KmDd8WaU9DYGaFpkVgHW93r6HUKsVVSVyGS9acRCrYw/viewform?embedded=true"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        loading="lazy"
+      >Loading…</iframe>
+    </div>
+  </div>
+</dialog>
+</main>
 
   <div class="hint" style="text-align:center;margin:20px 0;">Build: 3.6.24 (Single-file + PWA)</div>
 
-<script type="application/json" id="fixturesData">[{"id": "2025-08-15-pl-bournemouth-h-2000", "season": "25/26", "date": "2025-08-15", "time": "20:00", "datetime_utc": "2025-08-15T20:00:00Z", "competition": "PL", "opponent": "Bournemouth", "venue": "H", "location": ""}, {"id": "2025-08-23-pl-newcastleunited-a-1500", "season": "25/26", "date": "2025-08-23", "time": "15:00", "datetime_utc": "2025-08-23T15:00:00Z", "competition": "PL", "opponent": "Newcastle United", "venue": "A", "location": ""}, {"id": "2025-08-30-pl-arsenal-h-1500", "season": "25/26", "date": "2025-08-30", "time": "15:00", "datetime_utc": "2025-08-30T15:00:00Z", "competition": "PL", "opponent": "Arsenal", "venue": "H", "location": ""}, {"id": "2025-09-13-pl-burnley-a-1500", "season": "25/26", "date": "2025-09-13", "time": "15:00", "datetime_utc": "2025-09-13T15:00:00Z", "competition": "PL", "opponent": "Burnley", "venue": "A", "location": ""}, {"id": "2025-09-20-pl-everton-h-1500", "season": "25/26", "date": "2025-09-20", "time": "15:00", "datetime_utc": "2025-09-20T15:00:00Z", "competition": "PL", "opponent": "Everton", "venue": "H", "location": ""}, {"id": "2025-09-27-pl-crystalpalace-a-1500", "season": "25/26", "date": "2025-09-27", "time": "15:00", "datetime_utc": "2025-09-27T15:00:00Z", "competition": "PL", "opponent": "Crystal Palace", "venue": "A", "location": ""}, {"id": "2025-10-04-pl-chelsea-a-1500", "season": "25/26", "date": "2025-10-04", "time": "15:00", "datetime_utc": "2025-10-04T15:00:00Z", "competition": "PL", "opponent": "Chelsea", "venue": "A", "location": ""}, {"id": "2025-10-18-pl-manchesterunited-h-1500", "season": "25/26", "date": "2025-10-18", "time": "15:00", "datetime_utc": "2025-10-18T15:00:00Z", "competition": "PL", "opponent": "Manchester United", "venue": "H", "location": ""}, {"id": "2025-10-25-pl-brentford-a-1500", "season": "25/26", "date": "2025-10-25", "time": "15:00", "datetime_utc": "2025-10-25T15:00:00Z", "competition": "PL", "opponent": "Brentford", "venue": "A", "location": ""}, {"id": "2025-11-01-pl-astonvilla-h-1500", "season": "25/26", "date": "2025-11-01", "time": "15:00", "datetime_utc": "2025-11-01T15:00:00Z", "competition": "PL", "opponent": "Aston Villa", "venue": "H", "location": ""}, {"id": "2025-11-08-pl-manchestercity-a-1500", "season": "25/26", "date": "2025-11-08", "time": "15:00", "datetime_utc": "2025-11-08T15:00:00Z", "competition": "PL", "opponent": "Manchester City", "venue": "A", "location": ""}, {"id": "2025-11-22-pl-nottinghamforest-h-1500", "season": "25/26", "date": "2025-11-22", "time": "15:00", "datetime_utc": "2025-11-22T15:00:00Z", "competition": "PL", "opponent": "Nottingham Forest", "venue": "H", "location": ""}, {"id": "2025-11-29-pl-westhamunited-a-1500", "season": "25/26", "date": "2025-11-29", "time": "15:00", "datetime_utc": "2025-11-29T15:00:00Z", "competition": "PL", "opponent": "West Ham United", "venue": "A", "location": ""}, {"id": "2025-12-03-pl-sunderland-h-2000", "season": "25/26", "date": "2025-12-03", "time": "20:00", "datetime_utc": "2025-12-03T20:00:00Z", "competition": "PL", "opponent": "Sunderland", "venue": "H", "location": ""}, {"id": "2025-12-06-pl-leedsunited-a-1500", "season": "25/26", "date": "2025-12-06", "time": "15:00", "datetime_utc": "2025-12-06T15:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "A", "location": ""}, {"id": "2025-12-13-pl-brightonhovealbion-h-1500", "season": "25/26", "date": "2025-12-13", "time": "15:00", "datetime_utc": "2025-12-13T15:00:00Z", "competition": "PL", "opponent": "Brighton & Hove Albion", "venue": "H", "location": ""}, {"id": "2025-12-20-pl-tottenhamhotspur-a-1500", "season": "25/26", "date": "2025-12-20", "time": "15:00", "datetime_utc": "2025-12-20T15:00:00Z", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "A", "location": ""}, {"id": "2025-12-27-pl-wolverhamptonwanderers-h-1500", "season": "25/26", "date": "2025-12-27", "time": "15:00", "datetime_utc": "2025-12-27T15:00:00Z", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "H", "location": ""}, {"id": "2025-12-30-pl-leedsunited-h-2000", "season": "25/26", "date": "2025-12-30", "time": "20:00", "datetime_utc": "2025-12-30T20:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "H", "location": ""}, {"id": "2026-01-08-pl-arsenal-a", "season": "25/26", "datetime_utc": "2026-01-08T00:00:00+00:00", "date": "2026-01-08", "time": "00:00", "competition": "PL", "opponent": "Arsenal", "venue": "A", "location": "Emirates Stadium\\, London"}, {"id": "2026-01-12-fa-barnsley-h", "season": "25/26", "datetime_utc": "2026-01-12T00:00:00+00:00", "date": "2026-01-12", "time": "00:00", "competition": "FA", "opponent": "Barnsley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-17-pl-burnley-h", "season": "25/26", "datetime_utc": "2026-01-17T00:00:00+00:00", "date": "2026-01-17", "time": "00:00", "competition": "PL", "opponent": "Burnley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-18-other-welcometoliverpoolfc!-h", "season": "25/26", "datetime_utc": "2026-01-18T00:00:00+00:00", "date": "2026-01-18", "time": "00:00", "competition": "OTHER", "opponent": "Welcome to Liverpool FC!", "venue": "H", "location": "Proudly powered by ECAL"}, {"id": "2026-01-21-ucl-marseille-a", "season": "25/26", "datetime_utc": "2026-01-21T00:00:00+00:00", "date": "2026-01-21", "time": "00:00", "competition": "UCL", "opponent": "Marseille", "venue": "A", "location": "Orange Vélodrome\\, Marseille"}, {"id": "2026-01-24-pl-bournemouth-a", "season": "25/26", "datetime_utc": "2026-01-24T00:00:00+00:00", "date": "2026-01-24", "time": "00:00", "competition": "PL", "opponent": "Bournemouth", "venue": "A", "location": "Vitality Stadium\\, Bournemouth"}, {"id": "2026-01-28-ucl-qarabag-h", "season": "25/26", "datetime_utc": "2026-01-28T00:00:00+00:00", "date": "2026-01-28", "time": "00:00", "competition": "UCL", "opponent": "Qarabag", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-31-pl-newcastleunited-h", "season": "25/26", "datetime_utc": "2026-01-31T00:00:00+00:00", "date": "2026-01-31", "time": "00:00", "competition": "PL", "opponent": "Newcastle United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-08-pl-manchestercity-h", "season": "25/26", "datetime_utc": "2026-02-08T00:00:00+00:00", "date": "2026-02-08", "time": "00:00", "competition": "PL", "opponent": "Manchester City", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-11-pl-sunderland-a", "season": "25/26", "datetime_utc": "2026-02-11T00:00:00+00:00", "date": "2026-02-11", "time": "00:00", "competition": "PL", "opponent": "Sunderland", "venue": "A", "location": "Stadium of Light\\, Sunderland"}, {"id": "2026-02-14-fa-brightonandhovealbion-h", "season": "25/26", "datetime_utc": "2026-02-14T00:00:00+00:00", "date": "2026-02-14", "time": "00:00", "competition": "FA", "opponent": "Brighton and Hove Albion", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-21-pl-nottinghamforest-a", "season": "25/26", "datetime_utc": "2026-02-21T00:00:00+00:00", "date": "2026-02-21", "time": "00:00", "competition": "PL", "opponent": "Nottingham Forest", "venue": "A", "location": "The City Ground\\, Nottingham"}, {"id": "2026-02-28-pl-westhamunited-h", "season": "25/26", "datetime_utc": "2026-02-28T00:00:00+00:00", "date": "2026-02-28", "time": "00:00", "competition": "PL", "opponent": "West Ham United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-04-pl-wolverhamptonwanderers-a", "season": "25/26", "datetime_utc": "2026-03-04T00:00:00+00:00", "date": "2026-03-04", "time": "00:00", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "A", "location": "Molineux Stadium\\, Wolverhampton"}, {"id": "2026-03-14-pl-tottenhamhotspur-h", "season": "25/26", "datetime_utc": "2026-03-14T00:00:00+00:00", "date": "2026-03-14", "time": "00:00", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-21-pl-brightonandhovealbion-a", "season": "25/26", "datetime_utc": "2026-03-21T00:00:00+00:00", "date": "2026-03-21", "time": "00:00", "competition": "PL", "opponent": "Brighton and Hove Albion", "venue": "A", "location": "American Express Stadium\\, Falmer"}, {"id": "2026-04-11-pl-fulham-h", "season": "25/26", "datetime_utc": "2026-04-11T00:00:00+00:00", "date": "2026-04-11", "time": "00:00", "competition": "PL", "opponent": "Fulham", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-04-18-pl-everton-a", "season": "25/26", "datetime_utc": "2026-04-18T00:00:00+00:00", "date": "2026-04-18", "time": "00:00", "competition": "PL", "opponent": "Everton", "venue": "A", "location": "Hill Dickinson Stadium\\, Liverpool"}, {"id": "2026-04-25-pl-crystalpalace-h", "season": "25/26", "datetime_utc": "2026-04-25T00:00:00+00:00", "date": "2026-04-25", "time": "00:00", "competition": "PL", "opponent": "Crystal Palace", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-02-pl-manchesterunited-a", "season": "25/26", "datetime_utc": "2026-05-02T00:00:00+00:00", "date": "2026-05-02", "time": "00:00", "competition": "PL", "opponent": "Manchester United", "venue": "A", "location": "Old Trafford\\, Manchester"}, {"id": "2026-05-09-pl-chelsea-h", "season": "25/26", "datetime_utc": "2026-05-09T00:00:00+00:00", "date": "2026-05-09", "time": "00:00", "competition": "PL", "opponent": "Chelsea", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-17-pl-astonvilla-a", "season": "25/26", "datetime_utc": "2026-05-17T00:00:00+00:00", "date": "2026-05-17", "time": "00:00", "competition": "PL", "opponent": "Aston Villa", "venue": "A", "location": "Villa Park\\, Birmingham"}, {"id": "2026-05-24-pl-brentford-h", "season": "25/26", "datetime_utc": "2026-05-24T00:00:00+00:00", "date": "2026-05-24", "time": "00:00", "competition": "PL", "opponent": "Brentford", "venue": "H", "location": "Anfield\\, Liverpool"}]</script>
+<script type="application/json" id="fixturesData">[{"id":"2025-08-10-other-crystalpalace-a-1500","season":"25/26","date":"2025-08-10","time":"15:00","datetime_utc":"2025-08-10T15:00:00Z","competition":"OTHER","opponent":"Crystal Palace","venue":"A","location":""},{"id":"2025-08-15-pl-bournemouth-h-2000","season":"25/26","date":"2025-08-15","time":"20:00","datetime_utc":"2025-08-15T20:00:00Z","competition":"PL","opponent":"Bournemouth","venue":"H","location":""},{"id":"2025-08-25-pl-newcastleunited-a-2000","season":"25/26","date":"2025-08-25","time":"20:00","datetime_utc":"2025-08-25T20:00:00Z","competition":"PL","opponent":"Newcastle United","venue":"A","location":""},{"id":"2025-08-31-pl-arsenal-h-1630","season":"25/26","date":"2025-08-31","time":"16:30","datetime_utc":"2025-08-31T16:30:00Z","competition":"PL","opponent":"Arsenal","venue":"H","location":""},{"id":"2025-09-14-pl-burnley-a-1400","season":"25/26","date":"2025-09-14","time":"14:00","datetime_utc":"2025-09-14T14:00:00Z","competition":"PL","opponent":"Burnley","venue":"A","location":""},{"id":"2025-09-17-ucl-atleticomadrid-h-2000","season":"25/26","date":"2025-09-17","time":"20:00","datetime_utc":"2025-09-17T20:00:00Z","competition":"UCL","opponent":"Atletico Madrid","venue":"H","location":""},{"id":"2025-09-20-pl-everton-h-1230","season":"25/26","date":"2025-09-20","time":"12:30","datetime_utc":"2025-09-20T12:30:00Z","competition":"PL","opponent":"Everton","venue":"H","location":""},{"id":"2025-09-23-lc-southampton-h-2000","season":"25/26","date":"2025-09-23","time":"20:00","datetime_utc":"2025-09-23T20:00:00Z","competition":"LC","opponent":"Southampton","venue":"H","location":""},{"id":"2025-09-27-pl-crystalpalace-a-1500","season":"25/26","date":"2025-09-27","time":"15:00","datetime_utc":"2025-09-27T15:00:00Z","competition":"PL","opponent":"Crystal Palace","venue":"A","location":""},{"id":"2025-09-30-ucl-galatasaray-a-2000","season":"25/26","date":"2025-09-30","time":"20:00","datetime_utc":"2025-09-30T20:00:00Z","competition":"UCL","opponent":"Galatasaray","venue":"A","location":""},{"id":"2025-10-04-pl-chelsea-a-1730","season":"25/26","date":"2025-10-04","time":"17:30","datetime_utc":"2025-10-04T17:30:00Z","competition":"PL","opponent":"Chelsea","venue":"A","location":""},{"id":"2025-10-19-pl-manchesterunited-h-1630","season":"25/26","date":"2025-10-19","time":"16:30","datetime_utc":"2025-10-19T16:30:00Z","competition":"PL","opponent":"Manchester United","venue":"H","location":""},{"id":"2025-10-22-ucl-eintrachtfrankfurt-a-2000","season":"25/26","date":"2025-10-22","time":"20:00","datetime_utc":"2025-10-22T20:00:00Z","competition":"UCL","opponent":"Eintracht Frankfurt","venue":"A","location":""},{"id":"2025-10-25-pl-brentford-a-2000","season":"25/26","date":"2025-10-25","time":"20:00","datetime_utc":"2025-10-25T20:00:00Z","competition":"PL","opponent":"Brentford","venue":"A","location":""},{"id":"2025-10-29-lc-crystalpalace-h-1945","season":"25/26","date":"2025-10-29","time":"19:45","datetime_utc":"2025-10-29T19:45:00Z","competition":"LC","opponent":"Crystal Palace","venue":"H","location":""},{"id":"2025-11-01-pl-astonvilla-h-2000","season":"25/26","date":"2025-11-01","time":"20:00","datetime_utc":"2025-11-01T20:00:00Z","competition":"PL","opponent":"Aston Villa","venue":"H","location":""},{"id":"2025-11-04-ucl-realmadrid-h-2000","season":"25/26","date":"2025-11-04","time":"20:00","datetime_utc":"2025-11-04T20:00:00Z","competition":"UCL","opponent":"Real Madrid","venue":"H","location":""},{"id":"2025-11-09-pl-manchestercity-a-1630","season":"25/26","date":"2025-11-09","time":"16:30","datetime_utc":"2025-11-09T16:30:00Z","competition":"PL","opponent":"Manchester City","venue":"A","location":""},{"id":"2025-11-22-pl-nottinghamforest-h-1500","season":"25/26","date":"2025-11-22","time":"15:00","datetime_utc":"2025-11-22T15:00:00Z","competition":"PL","opponent":"Nottingham Forest","venue":"H","location":""},{"id":"2025-11-26-ucl-psveindhoven-h-2000","season":"25/26","date":"2025-11-26","time":"20:00","datetime_utc":"2025-11-26T20:00:00Z","competition":"UCL","opponent":"PSV Eindhoven","venue":"H","location":""},{"id":"2025-11-30-pl-westhamunited-a-1405","season":"25/26","date":"2025-11-30","time":"14:05","datetime_utc":"2025-11-30T14:05:00Z","competition":"PL","opponent":"West Ham United","venue":"A","location":""},{"id":"2025-12-03-pl-sunderland-h-2015","season":"25/26","date":"2025-12-03","time":"20:15","datetime_utc":"2025-12-03T20:15:00Z","competition":"PL","opponent":"Sunderland","venue":"H","location":""},{"id":"2025-12-06-pl-leedsunited-a-1730","season":"25/26","date":"2025-12-06","time":"17:30","datetime_utc":"2025-12-06T17:30:00Z","competition":"PL","opponent":"Leeds United","venue":"A","location":""},{"id":"2025-12-09-ucl-intermilan-a-2000","season":"25/26","date":"2025-12-09","time":"20:00","datetime_utc":"2025-12-09T20:00:00Z","competition":"UCL","opponent":"Inter Milan","venue":"A","location":""},{"id":"2025-12-13-pl-brighton-h-1500","season":"25/26","date":"2025-12-13","time":"15:00","datetime_utc":"2025-12-13T15:00:00Z","competition":"PL","opponent":"Brighton","venue":"H","location":""},{"id":"2025-12-20-pl-tottenhamhotspur-a-1730","season":"25/26","date":"2025-12-20","time":"17:30","datetime_utc":"2025-12-20T17:30:00Z","competition":"PL","opponent":"Tottenham Hotspur","venue":"A","location":""},{"id":"2025-12-27-pl-wolves-h-1500","season":"25/26","date":"2025-12-27","time":"15:00","datetime_utc":"2025-12-27T15:00:00Z","competition":"PL","opponent":"Wolves","venue":"H","location":""},{"id":"2026-01-01-pl-leedsunited-h-1730","season":"25/26","date":"2026-01-01","time":"17:30","datetime_utc":"2026-01-01T17:30:00Z","competition":"PL","opponent":"Leeds United","venue":"H","location":""},{"id":"2026-01-04-pl-fulham-a-1500","season":"25/26","date":"2026-01-04","time":"15:00","datetime_utc":"2026-01-04T15:00:00Z","competition":"PL","opponent":"Fulham","venue":"A","location":""},{"id":"2026-01-08-pl-arsenal-a-2000","season":"25/26","date":"2026-01-08","time":"20:00","datetime_utc":"2026-01-08T20:00:00Z","competition":"PL","opponent":"Arsenal","venue":"A","location":""},{"id":"2026-01-12-fa-barnsley-h-1945","season":"25/26","date":"2026-01-12","time":"19:45","datetime_utc":"2026-01-12T19:45:00Z","competition":"FAC","opponent":"Barnsley","venue":"H","location":""},{"id":"2026-01-17-pl-burnley-h-1500","season":"25/26","date":"2026-01-17","time":"15:00","datetime_utc":"2026-01-17T15:00:00Z","competition":"PL","opponent":"Burnley","venue":"H","location":""},{"id":"2026-01-21-ucl-marseille-a-2000","season":"25/26","date":"2026-01-21","time":"20:00","datetime_utc":"2026-01-21T20:00:00Z","competition":"UCL","opponent":"Marseille","venue":"A","location":""},{"id":"2026-01-24-pl-bournemouth-a-1730","season":"25/26","date":"2026-01-24","time":"17:30","datetime_utc":"2026-01-24T17:30:00Z","competition":"PL","opponent":"Bournemouth","venue":"A","location":""},{"id":"2026-01-28-ucl-qarabagfk-h-2000","season":"25/26","date":"2026-01-28","time":"20:00","datetime_utc":"2026-01-28T20:00:00Z","competition":"UCL","opponent":"Qarabag FK","venue":"H","location":""},{"id":"2026-01-31-pl-newcastleunited-h-2000","season":"25/26","date":"2026-01-31","time":"20:00","datetime_utc":"2026-01-31T20:00:00Z","competition":"PL","opponent":"Newcastle United","venue":"H","location":""},{"id":"2026-02-08-pl-manchestercity-h-1630","season":"25/26","date":"2026-02-08","time":"16:30","datetime_utc":"2026-02-08T16:30:00Z","competition":"PL","opponent":"Manchester City","venue":"H","location":""},{"id":"2026-02-11-pl-sunderland-a-2015","season":"25/26","date":"2026-02-11","time":"20:15","datetime_utc":"2026-02-11T20:15:00Z","competition":"PL","opponent":"Sunderland","venue":"A","location":""},{"id":"2026-02-14-fa-brighton-h-2000","season":"25/26","date":"2026-02-14","time":"20:00","datetime_utc":"2026-02-14T20:00:00Z","competition":"FAC","opponent":"Brighton","venue":"H","location":""},{"id":"2026-02-21-pl-nottinghamforest-a-1500","season":"25/26","date":"2026-02-21","time":"15:00","datetime_utc":"2026-02-21T15:00:00Z","competition":"PL","opponent":"Nottingham Forest","venue":"A","location":""},{"id":"2026-02-28-pl-westhamunited-h-1500","season":"25/26","date":"2026-02-28","time":"15:00","datetime_utc":"2026-02-28T15:00:00Z","competition":"PL","opponent":"West Ham United","venue":"H","location":""},{"id":"2026-03-04-pl-wolves-a-2000","season":"25/26","date":"2026-03-04","time":"20:00","datetime_utc":"2026-03-04T20:00:00Z","competition":"PL","opponent":"Wolves","venue":"A","location":""},{"id":"2026-03-14-pl-tottenhamhotspur-h-1500","season":"25/26","date":"2026-03-14","time":"15:00","datetime_utc":"2026-03-14T15:00:00Z","competition":"PL","opponent":"Tottenham Hotspur","venue":"H","location":""},{"id":"2026-03-21-pl-brighton-a-1500","season":"25/26","date":"2026-03-21","time":"15:00","datetime_utc":"2026-03-21T15:00:00Z","competition":"PL","opponent":"Brighton","venue":"A","location":""},{"id":"2026-04-11-pl-fulham-h-1500","season":"25/26","date":"2026-04-11","time":"15:00","datetime_utc":"2026-04-11T15:00:00Z","competition":"PL","opponent":"Fulham","venue":"H","location":""},{"id":"2026-04-18-pl-everton-a-1500","season":"25/26","date":"2026-04-18","time":"15:00","datetime_utc":"2026-04-18T15:00:00Z","competition":"PL","opponent":"Everton","venue":"A","location":""},{"id":"2026-04-25-pl-crystalpalace-h-1500","season":"25/26","date":"2026-04-25","time":"15:00","datetime_utc":"2026-04-25T15:00:00Z","competition":"PL","opponent":"Crystal Palace","venue":"H","location":""},{"id":"2026-05-02-pl-manchesterunited-a-1500","season":"25/26","date":"2026-05-02","time":"15:00","datetime_utc":"2026-05-02T15:00:00Z","competition":"PL","opponent":"Manchester United","venue":"A","location":""},{"id":"2026-05-09-pl-chelsea-h-1500","season":"25/26","date":"2026-05-09","time":"15:00","datetime_utc":"2026-05-09T15:00:00Z","competition":"PL","opponent":"Chelsea","venue":"H","location":""},{"id":"2026-05-17-pl-astonvilla-a-1500","season":"25/26","date":"2026-05-17","time":"15:00","datetime_utc":"2026-05-17T15:00:00Z","competition":"PL","opponent":"Aston Villa","venue":"A","location":""},{"id":"2026-05-24-pl-brentford-h-1600","season":"25/26","date":"2026-05-24","time":"16:00","datetime_utc":"2026-05-24T16:00:00Z","competition":"PL","opponent":"Brentford","venue":"H","location":""}]</script>
 
 <script>
+
+
+
+
+
+
+
 /* Inlined app script (single-file build) */
 
 /* Inlined app script (single-file build) */
@@ -662,12 +770,52 @@ function load() {
     return;
   }
   try {
-    state.data = JSON.parse(raw);
-    if (!state.data || !state.data.seasons) throw new Error("Bad data");
+    state.data = JSON.parse(raw) || {};
   } catch {
-    state.data = defaultData();
-    save();
+    state.data = {};
   }
+
+  // Repair / migrate older or partial data
+  const gen = generateSeasons();
+  if (!Array.isArray(state.data.seasons) || state.data.seasons.length === 0) {
+    state.data.seasons = gen.seasons;
+  }
+  if (!state.data.activeSeasonId) {
+    state.data.activeSeasonId = gen.activeSeasonId;
+  } else {
+    // Ensure activeSeasonId is valid
+    const ok = state.data.seasons.some(s => s.id === state.data.activeSeasonId);
+    if (!ok) state.data.activeSeasonId = gen.activeSeasonId;
+  }
+
+  if (!Array.isArray(state.data.accounts)) state.data.accounts = [];
+  if (!("activeAccountId" in state.data)) state.data.activeAccountId = null;
+  if (!Array.isArray(state.data.matches)) state.data.matches = [];
+  if (!state.data.settings) {
+    state.data.settings = {
+      ruleForwardedNoCredit: true,
+      ruleReturnedNoCredit: true,
+      ruleHospitalityNoCredit: true
+    };
+  }
+
+
+  // Migrate legacy autoCup -> per-season map (current season only)
+  try{
+    const sid = state.data.activeSeasonId || gen.activeSeasonId;
+    for(const acc of (state.data.accounts || [])){
+      if (!acc.autoCupBySeason) {
+        const legacy = acc.autoCup || {LC:false, FAC:false, UCL:false};
+        acc.autoCupBySeason = {};
+        acc.autoCupBySeason[sid] = { LC: !!legacy.LC, FAC: !!legacy.FAC, UCL: !!legacy.UCL };
+      } else if (!acc.autoCupBySeason[sid] && acc.autoCup) {
+        const legacy = acc.autoCup;
+        acc.autoCupBySeason[sid] = { LC: !!legacy.LC, FAC: !!legacy.FAC, UCL: !!legacy.UCL };
+      }
+    }
+  }catch(e){}
+
+  save();
 }
 
 function save() {
@@ -677,6 +825,31 @@ function save() {
 function activeSeasonId() {
   return state.data.activeSeasonId;
 }
+
+function getAutoCupForSeason(acc, seasonId){
+  const sid = seasonId || activeSeasonId();
+  if (!acc) return {LC:false, FAC:false, UCL:false};
+  if (acc.autoCupBySeason && acc.autoCupBySeason[sid]) {
+    const v = acc.autoCupBySeason[sid] || {};
+    return { LC: !!v.LC, FAC: !!v.FAC, UCL: !!v.UCL };
+  }
+  // Backward compatibility
+  const legacy = acc.autoCup || {};
+  return { LC: !!legacy.LC, FAC: !!legacy.FAC, UCL: !!legacy.UCL };
+}
+
+function setAutoCupForSeason(acc, seasonId, value){
+  if(!acc) return;
+  const sid = seasonId || activeSeasonId();
+  if(!acc.autoCupBySeason) acc.autoCupBySeason = {};
+  acc.autoCupBySeason[sid] = {
+    LC: !!value.LC,
+    FAC: !!value.FAC,
+    UCL: !!value.UCL
+  };
+}
+
+
 
 function activeAccountId() {
   return state.data.activeAccountId;
@@ -705,7 +878,7 @@ function getSeasonMatches(seasonId) {
 }
 
 function creditIsCounted(match) {
-  return match.creditCounts === "yes";
+  return match.creditCredit === "yes";
 }
 
 function computeSpend(seasonId) {
@@ -723,7 +896,7 @@ function computeBreakdownByCompetition(seasonId) {
   for (const c of comps) out[c] = { H: 0, A: 0 };
   for (const m of matches) {
     const c = out[m.competition] ? m.competition : "OTHER";
-    if (m.creditCounts === "yes") {
+    if (m.creditCredit === "yes") {
       if (m.venue === "H") out[c].H += 1;
       if (m.venue === "A") out[c].A += 1;
     }
@@ -765,8 +938,8 @@ function formatMeta(m) {
 }
 
 function badgeForCredit(m) {
-  if (m.creditCounts === "yes") return { text: "🟢 Counts", cls: "good" };
-  if (m.creditCounts === "no") return { text: "🔴 No credit", cls: "bad" };
+  if (m.creditCredit === "yes") return { text: "🟢 Credit", cls: "good" };
+  if (m.creditCredit === "no") return { text: "🔴 No credit", cls: "bad" };
   return { text: "ℹ️ Unsure", cls: "neutral" };
 }
 
@@ -868,7 +1041,7 @@ function renderDashboard() {
 
   // Competition breakdown table
   const acc = state.data.accounts.find(a => a.id === activeAccountId());
-  const autoCup = (acc && acc.autoCup) ? acc.autoCup : {LC:false,FAC:false,UCL:false};
+  const autoCup = getAutoCupForSeason(acc, activeSeasonId());
   const breakdown = computeBreakdownByCompetition(activeSeasonId());
   const labels = { PL: "Premier League", UCL: "UCL", FAC: "FA Cup", LC: "League Cup", OTHER: "Other" };
   const table = document.createElement("table");
@@ -912,9 +1085,10 @@ function renderDashboard() {
     .slice(0, 6);
 
   const root = $("recentList");
+  if (!root) return;
   root.innerHTML = "";
 
-  if (matches.length === 0) {
+if (matches.length === 0) {
     const div = document.createElement("div");
     div.className = "empty";
     div.textContent = "🎟️ No matches yet — tap ➕ Add match to start tracking.";
@@ -1010,7 +1184,7 @@ function renderMatches() {
     .filter(m => {
       if (v && m.venue !== v) return false;
       if (c && m.competition !== c) return false;
-      if (cr && m.creditCounts !== cr) return false;
+      if (cr && m.creditCredit !== cr) return false;
       if (q) {
         const hay = `${m.opponent} ${m.notes || ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -1050,7 +1224,7 @@ function clearForm() {
 }
 
 function setCreditChip(val) {
-  const cc = $("creditCounts");
+  const cc = $("creditCredit");
   if (cc) cc.value = val;
   document.querySelectorAll(".chip").forEach(ch => {
     ch.classList.toggle("active", ch.dataset.credit === val);
@@ -1085,7 +1259,7 @@ function upsertMatchFromForm() {
     matchDate: $("matchDate").value,
     appliedStatus: "na",
     ticketAction: $("ticketAction").value,
-    creditCounts: $("creditCounts").value,
+    creditCredit: $("creditCredit").value,
     notes: $("notes").value.trim(),
     fixtureKey: ($("fixtureKey") ? $("fixtureKey").value.trim() : ""),
     amountPaid: parseAmount($("amountPaid").value),
@@ -1138,7 +1312,7 @@ function editMatch(id) {
   $("venue").value = m.venue || "H";
   $("competition").value = m.competition || "PL";
     $("ticketAction").value = m.ticketAction || "used";
-  setCreditChip(m.creditCounts || "unsure");
+  setCreditChip(m.creditCredit || "unsure");
   $("notes").value = m.notes || "";
   $("amountPaid").value = (m.amountPaid ?? "");
 
@@ -1190,7 +1364,7 @@ function exportCSV() {
 
   const header = [
     "season","opponent","venue","competition","matchDate",
-    "appliedStatus","ticketAction","creditCounts","amountPaid","notes","createdAt","updatedAt"
+    "appliedStatus","ticketAction","creditCredit","amountPaid","notes","createdAt","updatedAt"
   ];
 
   const lines = [header.join(",")];
@@ -1203,7 +1377,7 @@ function exportCSV() {
       m.matchDate,
       m.appliedStatus,
       m.ticketAction,
-      m.creditCounts,
+      m.creditCredit,
       m.amountPaid,
       m.notes,
       m.createdAt,
@@ -1231,79 +1405,16 @@ function importJSONFile(file) {
   reader.readAsText(file);
 }
 
-function openSettings() {
-  $("ruleForwardedNoCredit").checked = !!state.data.settings.ruleForwardedNoCredit;
-  $("ruleReturnedNoCredit").checked = !!state.data.settings.ruleReturnedNoCredit;
-  $("ruleHospitalityNoCredit").checked = !!state.data.settings.ruleHospitalityNoCredit;
-  $("settingsModal").showModal();
+function openSettings(){
+  return;
 }
 
-function closeSettings() {
-  $("settingsModal").close();
+function closeSettings(){
+  return;
 }
 
-function bindSettings() {
-  onEl("ruleForwardedNoCredit","change",(e) => {
-    state.data.settings.ruleForwardedNoCredit = e.target.checked;
-    save();
-  });
-  onEl("ruleReturnedNoCredit","change",(e) => {
-    state.data.settings.ruleReturnedNoCredit = e.target.checked;
-    save();
-  });
-  onEl("ruleHospitalityNoCredit","change",(e) => {
-    state.data.settings.ruleHospitalityNoCredit = e.target.checked;
-    save();
-  });
-}
-
-
-// --- Support & Feedback ---
-const SUPPORT_BMAC_URL = "https://buymeacoffee.com/"; // TODO: replace with your actual page
-const SUPPORT_FEEDBACK_EMAIL = ""; // TODO: replace with your email (e.g. tickethelplfc@gmail.com)
-
-function openSupport(){
-  const dlg = $("supportModal");
-  if (!dlg) return;
-  if (typeof dlg.showModal === "function") dlg.showModal();
-  else dlg.classList.remove("hidden");
-}
-
-function closeSupport(){
-  const dlg = $("supportModal");
-  if (!dlg) return;
-  if (typeof dlg.close === "function") dlg.close();
-  else dlg.classList.add("hidden");
-}
-
-function wireSupport(){
-  onEl("btnSupport","click", openSupport);
-  onEl("btnSupportClose","click", closeSupport);
-  onEl("btnBmac","click", () => {
-    if (!SUPPORT_BMAC_URL || SUPPORT_BMAC_URL === "https://buymeacoffee.com/") {
-      alert("Buy Me a Coffee link not set yet.");
-      return;
-    }
-    window.open(SUPPORT_BMAC_URL, "_blank", "noopener");
-  });
-  onEl("supportSend","click", (e) => {
-    e.preventDefault();
-    const msg = ($("supportMsg")?.value || "").trim();
-    const from = ($("supportEmail")?.value || "").trim();
-    if (!msg) {
-      alert("Please enter your feedback message.");
-      return;
-    }
-    if (!SUPPORT_FEEDBACK_EMAIL) {
-      alert("Feedback email not set yet.");
-      return;
-    }
-    const subject = encodeURIComponent("TicketHelpLFC Credit Tracker feedback");
-    const body = encodeURIComponent(`From: ${from || "(not provided)"}
-
-${msg}`);
-    window.location.href = `mailto:${SUPPORT_FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
-  });
+function bindSettings(){
+  return;
 }
 
 function addSeason() {
@@ -1362,8 +1473,6 @@ function bindEvents() {
     });
   });
 
-    wireSupport();
-
   onEl("accountSelect","change",(e)=> setActiveAccount(e.target.value));
   onEl("seasonSelect","change",(e)=> setActiveSeason(e.target.value));
   onEl("btnAddAccount","click", openSetupForNewAccount);
@@ -1379,7 +1488,7 @@ function bindEvents() {
   });
 
   $("ticketAction").addEventListener("change", (e) => {
-    const cc = $("creditCounts");
+    const cc = $("creditCredit");
     const current = cc ? cc.value : "unsure";
     if (current === "unsure") {
       setCreditChip(defaultCreditFromAction(e.target.value));
@@ -1445,27 +1554,29 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
 
   $("btnExportJSON").addEventListener("click", exportJSON);
   $("btnExportCSV").addEventListener("click", exportCSV);
-  $("btnExportJSON2").addEventListener("click", exportJSON);
-  $("btnExportCSV2").addEventListener("click", exportCSV);
-
-  $("importFile").addEventListener("change", (e) => {
+  onEl("btnExportJSON2","click", exportJSON);
+onEl("btnExportCSV2","click", exportCSV);
+$("importFile").addEventListener("change", (e) => {
     const f = e.target.files?.[0];
     if (f) importJSONFile(f);
     e.target.value = "";
   });
-  $("importFile2").addEventListener("change", (e) => {
+  onEl("importFile2","change",(e)=>{
     const f = e.target.files?.[0];
     if (f) importJSONFile(f);
     e.target.value = "";
   });
-
-  onEl("btnSettings","click", openSettings);
+onEl("btnSettings","click", openSettings);
   onEl("btnCloseSettings","click", closeSettings);
   bindSettings();
 
   // Setup screen
   onEl("setupCount","input", renderSetupNames);
   onEl("btnSetupCreate","click", () => { try { saveSetup(); } catch(e){ alert("Setup error: " + (e && e.message ? e.message : e)); console.error(e); } });
+
+onEl("btnSupport","click", openSupport);
+onEl("btnCloseSupport","click", closeSupport);
+onEl("btnBmac","click", ()=> window.open("https://buymeacoffee.com/TicketHelpLFC", "_blank", "noopener"));
 }
 
 function init() {
@@ -1532,8 +1643,14 @@ function renderSetupNames() {
 
 function openSetupForNewAccount() {
   // Convenience: go to setup screen but keep existing accounts
+  state.isAddingSingle = true;
   setView("setup");
   $("setupCount").value = "1";
+
+  // Ensure the setup season dropdown is populated with real season IDs
+  try { populateSeasonSelect($("setupSeason")); } catch(e) {}
+  if ($("setupSeason")) $("setupSeason").value = activeSeasonId();
+
   renderSetupNames();
 }
 
@@ -1555,7 +1672,7 @@ function saveSetup() {
       UCL: !!$("setupAccUCL_" + i)?.checked
     };
 
-    const acc = createAccount(name, autoCup);
+    const acc = createAccount(name, autoCup, season);
     createdIds.push(acc.id);
   }
 
@@ -1577,10 +1694,20 @@ function saveSetup() {
 
 
 
-function createAccount(name, autoCup={LC:false, FAC:false, UCL:false}) {
+function createAccount(name, autoCup={LC:false, FAC:false, UCL:false}, seasonId=null) {
+  const sid = seasonId || activeSeasonId();
   const acc = {
     id: uid(),
     name: name.trim(),
+    // Per-season AutoCup settings
+    autoCupBySeason: {
+      [sid]: {
+        LC: !!autoCup.LC,
+        FAC: !!autoCup.FAC,
+        UCL: !!autoCup.UCL
+      }
+    },
+    // Legacy field (kept for backward-compat / export)
     autoCup: {
       LC: !!autoCup.LC,
       FAC: !!autoCup.FAC,
@@ -1701,6 +1828,13 @@ async function renderFixtures() {
 
     if (countEl) countEl.textContent = `Loaded ${data.length} fixtures • Showing ${filtered.length}`;
 
+// Build a fast lookup of tracked matches for this account/season
+const _seasonId = activeSeasonId();
+const _accId = activeAccountId();
+const _matches = (state.data.matches || []).filter(m => m && m.seasonId === _seasonId && (!_accId || m.accountId === _accId));
+const _trackedIds = new Set(_matches.map(m => (m.fixtureKey || "").trim()).filter(Boolean));
+const _trackedKeys = new Set(_matches.map(m => `${(m.matchDate||"")}|${(m.competition||"")}|${(m.venue||"")}|${(m.opponent||"")}`.toLowerCase()).filter(k => k !== "|||"));
+
     listEl.innerHTML = filtered.map(f => {
       const when = (f.date || (f.datetime_utc||"").slice(0,10));
       const ha = (f.venue === "A") ? "A" : "H";
@@ -1708,8 +1842,10 @@ async function renderFixtures() {
       const opp = f.opponent || "—";
       const time = (f.time && f.time !== "00:00") ? ` • ${f.time}` : "";
       const fid = (f.id || "").replace(/"/g,'');
+      const key = `${when}|${comp}|${ha}|${opp}`.toLowerCase();
+      const tracked = (fid && _trackedIds.has(fid)) || _trackedKeys.has(key);
       return `
-        <div class="item clickable" data-fixture-id="${fid}">
+        <div class="item clickable ${tracked ? "fixtureTracked" : ""}" data-fixture-id="${fid}">
           <div class="row space-between">
             <div>
               <div class="itemTitle">${opp}</div>
@@ -1905,21 +2041,21 @@ function seasonLabel(startYY){
 }
 function populateSeasonSelect(sel){
   if(!sel) return;
-  // Always rebuild options (some templates insert a placeholder option)
-  const current = sel.value || "";
+
+  // Build from stored seasons (IDs like "2025-26", labels like "25/26")
+  const desired = sel.value || activeSeasonId();
   sel.innerHTML = "";
-  const now = new Date();
-  const yy = now.getFullYear() % 100;
-  const seasonStart = (now.getMonth() >= 6) ? yy : ((yy + 99) % 100); // July+ => YY/YY+1 else (YY-1)/YY
-  for(let i=0;i<8;i++){
-    const label = seasonLabel((seasonStart+i)%100);
+
+  const seasons = Array.isArray(state.data.seasons) ? state.data.seasons : generateSeasons().seasons;
+  for (const s of seasons) {
     const opt = document.createElement("option");
-    opt.value = label;
-    opt.textContent = label;
+    opt.value = s.id;
+    opt.textContent = s.label;
     sel.appendChild(opt);
   }
-  // Restore previous selection if possible
-  if (current) sel.value = current;
+
+  const hasDesired = Array.from(sel.options).some(o => o.value === desired);
+  sel.value = hasDesired ? desired : (activeSeasonId() || sel.options[0]?.value || "");
 }
 function populateAllSeasonSelects(){
   document.querySelectorAll('select.seasonSelect, select[data-role="season"]').forEach(populateSeasonSelect);
@@ -1943,10 +2079,12 @@ function editActiveAccount(){
   acc.name = (newName || "").trim() || acc.name;
 
   // Autocup toggles (per account)
-  const ac = acc.autoCup || {LC:false,FAC:false,UCL:false};
-  const lc = confirm("AutoCup (HOME) — League Cup?\nOK = Yes, Cancel = No");
-  const fac = confirm("AutoCup (HOME) — FA Cup?\nOK = Yes, Cancel = No");
-  const ucl = confirm("AutoCup (HOME) — Champions League?\nOK = Yes, Cancel = No");
+  const ac = getAutoCupForSeason(acc, activeSeasonId());
+  const seasonTxt = seasonLabel(activeSeasonId());
+  const lc = confirm(`AutoCup (HOME) — League Cup?\nSeason: ${seasonTxt}\n\nOK = Yes, Cancel = No`);
+  const fac = confirm(`AutoCup (HOME) — FA Cup?\nSeason: ${seasonTxt}\n\nOK = Yes, Cancel = No`);
+  const ucl = confirm(`AutoCup (HOME) — Champions League?\nSeason: ${seasonTxt}\n\nOK = Yes, Cancel = No`);
+  setAutoCupForSeason(acc, activeSeasonId(), {LC:lc, FAC:fac, UCL:ucl});
   acc.autoCup = {LC:lc, FAC:fac, UCL:ucl};
 
   save();
@@ -1976,51 +2114,30 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
+
+
+
+
+
+
+
+
+function openSupport(){
+  const dlg = $("supportModal");
+  if (!dlg) return;
+  dlg.classList.remove("hidden");
+  if (dlg.showModal) dlg.showModal();
+  else dlg.setAttribute("open","");
+}
+function closeSupport(){
+  const dlg = $("supportModal");
+  if (!dlg) return;
+  try { dlg.close(); } catch(e) {}
+  dlg.classList.add("hidden");
+}
 </script>
 
+
+  <footer class="buildFooter">Build 2026-01-19 • fixtures-small</footer>
 </body>
 </html>
-    <!-- Fixtures -->
-    <section id="viewFixtures" class="view hidden">
-      <section class="card">
-        <div class="row space-between">
-          <div>
-            <div class="label">📅 Fixtures</div>
-            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
-          </div>
-          <button id="btnReloadFixtures" class="btn ghost">🔄 Refresh</button>
-          <label class="btn ghost fileBtn">📥 Import fixtures (ICS)
-            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
-          </label>
-          <button id="btnClearFixtures" class="btn ghost">🧹 Clear imported</button>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <div class="fieldLabel">Show</div>
-            <select id="fixtureShow" class="select">
-              <option value="upcoming" selected>Upcoming</option>
-              <option value="past">Past</option>
-              <option value="all">All</option>
-            </select>
-          </div>
-          <div>
-            <div class="fieldLabel">Filter</div>
-            <select id="fixtureComp" class="select">
-              <option value="" selected>All competitions</option>
-              <option value="PL">PL</option>
-              <option value="UCL">UCL</option>
-              <option value="FAC">FA Cup</option>
-              <option value="LC">League Cup</option>
-              <option value="OTHER">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
-        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
-        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
-      </section>
-    </section>
-
-

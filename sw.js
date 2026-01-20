@@ -1,5 +1,8 @@
-const CACHE = "thlfc-single-pwa-v3.6.24";
-const ASSETS = ["./","./index.html","./manifest.json","./sw.js","./icon.svg"];
+const CACHE = "thlfc-single-pwa-v3.6.24-r1";
+const ASSETS = ["./","./index.html","./manifest.json","./sw.js","./icon.svg",
+  "icons/icon-192.png",
+  "icons/icon-512.png",
+  "icon.svg"];
 self.addEventListener("install", (event) => { self.skipWaiting(); event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))); });
 self.addEventListener("activate", (event) => { event.waitUntil((async()=>{ const keys=await caches.keys(); await Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))); await self.clients.claim(); })()); });
 self.addEventListener("fetch", (event) => {
