@@ -1181,15 +1181,12 @@ function matchCard(m) {
   left.appendChild(title);
   left.appendChild(meta);
 
-  const right = document.createElement("div");
   const credit = badgeForCredit(m);
   const creditBadge = document.createElement("div");
   creditBadge.className = `badge ${credit.cls}`;
   creditBadge.textContent = credit.text;
-  right.appendChild(creditBadge);
 
   top.appendChild(left);
-  top.appendChild(right);
 
   const badges = document.createElement("div");
   badges.className = "itemBadges";
@@ -1200,16 +1197,11 @@ function matchCard(m) {
     cost.textContent = `💷 ${formatGBP(m.amountPaid)}`;
     badges.appendChild(cost);
   }
-  const b2 = badgeForAction(m);
-
-  const action = document.createElement("div");
-  action.className = `badge ${b2.cls}`;
-  action.textContent = b2.text;
-
   const comp = document.createElement("div");
   comp.className = "badge red";
   comp.textContent = `🏷️ ${m.competition}`;
-  badges.appendChild(action);
+
+  badges.appendChild(creditBadge);
   badges.appendChild(comp);
 
   div.appendChild(top);
