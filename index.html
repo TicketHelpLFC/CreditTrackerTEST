@@ -300,20 +300,33 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 .hr{ height:1px; background: rgba(255,255,255,.08); margin:12px 0; border-radius:999px; }
 
 /* Support modal: iframe embed */
+/* Support modal: Google Form container (streamlined) */
 .formEmbedWrap{
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius:16px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius:18px;
   overflow:hidden;
-  background: rgba(255,255,255,.03);
+  background: rgba(255,255,255,.02);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.20);
 }
 .formEmbed{
   width:100%;
   height:560px;
   border:0;
   display:block;
+  background:#fff; /* avoids dark flash behind the iframe */
 }
+
+/* Buy Me a Coffee highlight (yellow outline) */
+#btnBmac{
+  border: 2px solid #f6c343;
+  background: transparent;
+  color: var(--text);
+}
+#btnBmac:hover{
+  background: rgba(246,195,67,.12);
+}
+
 @media (max-width:520px){
-  .formEmbed{ height:620px; }
   #btnSupport{ padding:8px 10px; font-size:13px; }
 }
 
