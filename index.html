@@ -34,7 +34,7 @@ body{
   color:var(--text);
 }
 
-.appHeader{
+.topbar{
   position:sticky; top:0;
   display:flex; align-items:center; justify-content:space-between;
   padding:12px 14px;
@@ -218,33 +218,10 @@ body{
 
 .brandLogo{width:34px;height:34px;border-radius:10px;display:block}
 
-
-.headerActions{ display:flex; gap:10px; align-items:center; }
-@media (max-width: 520px){
-  .headerActions{ gap:8px; }
-  #btnSupport{ padding:8px 10px; font-size:13px; }
-}
-
-.modalHeader{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-.modalTitle{ font-weight:800; font-size:18px; }
-.hr{ height:1px; background: rgba(255,255,255,.08); margin:12px 0; border-radius:999px; }
-
-.fieldLabel{ font-weight:700; margin-bottom:6px; }
-.input, .textarea{
-  width:100%;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius:14px;
-  padding:10px 12px;
-  color: var(--text);
-  outline:none;
-}
-.input:focus, .textarea:focus{ border-color: rgba(227,27,35,.55); }
-.textarea{ resize: vertical; min-height: 110px; }
 </style>
 </head>
 <body>
-  <header class="appHeader">
+  <header class="topbar">
     <div class="brand">
       <img class="brandLogo" src="icons/icon-192.png" alt="TicketHelpLFC" />
       <div>
@@ -252,10 +229,8 @@ body{
         <div class="subtitle">Credit Tracker</div>
       </div>
     </div>
-    <div class="headerActions">
-      <button id="btnSupport" class="btn ghost">💬 Support</button>
-      <button id="btnInstall" class="btn ghost" hidden>⬇️ Install</button>
-    </div>
+    <button id="btnInstall" class="btn ghost" hidden>⬇️ Install</button>
+    <button id="btnSupport" class="btn ghost">💬 Support &amp; Feedback</button>
   </header>
 
   <main class="container">
@@ -526,56 +501,53 @@ body{
         <div class="hint" style="margin-top:6px;">Export/Import is stored locally on this device.</div>
       </div>
 </dialog>
-  <!-- Support & Feedback -->
-<dialog id="supportModal" class="modal hidden">
-  <div class="modalInner">
-    <div class="modalHeader">
-      <div class="modalTitle">💬 Support & Feedback</div>
-      <button type="button" class="btn ghost sm" id="btnCloseSupport" aria-label="Close">✖</button>
+
+  <dialog id="supportModal" class="modal">
+    <div class="modalInner">
+      <div class="row space-between" style="align-items:center; gap:10px;">
+        <div>
+          <div class="label">💬 Support &amp; Feedback</div>
+          <div class="hint">If these tools help, you can support the project — and you can send feedback/bugs straight to me.</div>
+        </div>
+        <button id="btnSupportClose" class="btn ghost sm" aria-label="Close">✖️</button>
+      </div>
+
+      <hr class="sep" />
+
+      <div class="label">☕ Support</div>
+      <div class="hint">Buy me a coffee to help cover hosting/time building tools for the community.</div>
+      <div style="margin-top:10px;">
+        <button id="btnBmac" class="btn primary full">Open Buy Me a Coffee</button>
+      </div>
+
+      <hr class="sep" />
+
+      <div class="label">✍️ Send feedback</div>
+      <div class="hint">This uses your email app (mailto) so it works anywhere without a server.</div>
+
+      <div style="margin-top:10px;">
+        <div class="fieldLabel">Your email (optional)</div>
+        <input id="supportEmail" class="input" type="email" placeholder="name@email.com" />
+
+        <div class="fieldLabel" style="margin-top:10px;">Message</div>
+        <textarea id="supportMsg" class="textarea" rows="4" placeholder="Tell me what’s working / what’s broken / feature ideas…"></textarea>
+
+        <div class="row gap wrap" style="margin-top:12px;">
+          <button id="supportSend" class="btn">📩 Send feedback</button>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:12px;">No data is uploaded by the app itself. Export/import is stored locally on your device.</div>
     </div>
+  </dialog>
 
-    <div class="hr"></div>
-
-    <h3 style="margin:0 0 6px;">☕ Support the tools</h3>
-    <div class="hint" style="margin-bottom:10px;">
-      If these tools help you get to games, you can chip in to support hosting + ongoing updates.
-    </div>
-    <button type="button" id="btnBmac" class="btn full">Open Buy Me a Coffee</button>
-
-    <div class="hr" style="margin-top:16px;"></div>
-
-    <h3 style="margin:0 0 6px;">📝 Send feedback</h3>
-    <div class="hint" style="margin-bottom:10px;">
-      Found a bug or have an idea? Drop it below and hit send.
-    </div>
-
-    <div class="field">
-      <div class="fieldLabel">Your email (optional)</div>
-      <input id="feedbackEmail" class="input" type="email" placeholder="you@example.com" />
-    </div>
-
-    <div class="field" style="margin-top:10px;">
-      <div class="fieldLabel">Message</div>
-      <textarea id="feedbackMsg" class="textarea" rows="5" placeholder="Tell me what happened / what you'd like added..."></textarea>
-    </div>
-
-    <div class="row" style="margin-top:12px; gap:10px;">
-      <button type="button" id="btnSendFeedback" class="btn full">Send feedback</button>
-    </div>
-
-    <div id="feedbackStatus" class="hint" style="margin-top:10px;"></div>
-
-    <div class="hr" style="margin-top:14px;"></div>
-    <div class="hint" style="opacity:.85;">
-      Note: feedback uses your device email app by default. If you want it to send silently, we can wire this to a form endpoint (Formspree/Netlify/Google Form).
-    </div>
-  </div>
-</dialog>
-</main>
+  </main>
 
   <div class="hint" style="text-align:center;margin:20px 0;">Build: 3.6.24 (Single-file + PWA)</div>
 
-<script type="application/json" id="fixturesData">[{"id": "2025-08-15-pl-bournemouth-h-2000", "season": "25/26", "date": "2025-08-15", "time": "20:00", "datetime_utc": "2025-08-15T20:00:00Z", "competition": "PL", "opponent": "Bournemouth", "venue": "H", "location": ""}, {"id": "2025-08-23-pl-newcastleunited-a-1500", "season": "25/26", "date": "2025-08-23", "time": "15:00", "datetime_utc": "2025-08-23T15:00:00Z", "competition": "PL", "opponent": "Newcastle United", "venue": "A", "location": ""}, {"id": "2025-08-30-pl-arsenal-h-1500", "season": "25/26", "date": "2025-08-30", "time": "15:00", "datetime_utc": "2025-08-30T15:00:00Z", "competition": "PL", "opponent": "Arsenal", "venue": "H", "location": ""}, {"id": "2025-09-13-pl-burnley-a-1500", "season": "25/26", "date": "2025-09-13", "time": "15:00", "datetime_utc": "2025-09-13T15:00:00Z", "competition": "PL", "opponent": "Burnley", "venue": "A", "location": ""}, {"id": "2025-09-20-pl-everton-h-1500", "season": "25/26", "date": "2025-09-20", "time": "15:00", "datetime_utc": "2025-09-20T15:00:00Z", "competition": "PL", "opponent": "Everton", "venue": "H", "location": ""}, {"id": "2025-09-27-pl-crystalpalace-a-1500", "season": "25/26", "date": "2025-09-27", "time": "15:00", "datetime_utc": "2025-09-27T15:00:00Z", "competition": "PL", "opponent": "Crystal Palace", "venue": "A", "location": ""}, {"id": "2025-10-04-pl-chelsea-a-1500", "season": "25/26", "date": "2025-10-04", "time": "15:00", "datetime_utc": "2025-10-04T15:00:00Z", "competition": "PL", "opponent": "Chelsea", "venue": "A", "location": ""}, {"id": "2025-10-18-pl-manchesterunited-h-1500", "season": "25/26", "date": "2025-10-18", "time": "15:00", "datetime_utc": "2025-10-18T15:00:00Z", "competition": "PL", "opponent": "Manchester United", "venue": "H", "location": ""}, {"id": "2025-10-25-pl-brentford-a-1500", "season": "25/26", "date": "2025-10-25", "time": "15:00", "datetime_utc": "2025-10-25T15:00:00Z", "competition": "PL", "opponent": "Brentford", "venue": "A", "location": ""}, {"id": "2025-11-01-pl-astonvilla-h-1500", "season": "25/26", "date": "2025-11-01", "time": "15:00", "datetime_utc": "2025-11-01T15:00:00Z", "competition": "PL", "opponent": "Aston Villa", "venue": "H", "location": ""}, {"id": "2025-11-08-pl-manchestercity-a-1500", "season": "25/26", "date": "2025-11-08", "time": "15:00", "datetime_utc": "2025-11-08T15:00:00Z", "competition": "PL", "opponent": "Manchester City", "venue": "A", "location": ""}, {"id": "2025-11-22-pl-nottinghamforest-h-1500", "season": "25/26", "date": "2025-11-22", "time": "15:00", "datetime_utc": "2025-11-22T15:00:00Z", "competition": "PL", "opponent": "Nottingham Forest", "venue": "H", "location": ""}, {"id": "2025-11-29-pl-westhamunited-a-1500", "season": "25/26", "date": "2025-11-29", "time": "15:00", "datetime_utc": "2025-11-29T15:00:00Z", "competition": "PL", "opponent": "West Ham United", "venue": "A", "location": ""}, {"id": "2025-12-03-pl-sunderland-h-2000", "season": "25/26", "date": "2025-12-03", "time": "20:00", "datetime_utc": "2025-12-03T20:00:00Z", "competition": "PL", "opponent": "Sunderland", "venue": "H", "location": ""}, {"id": "2025-12-06-pl-leedsunited-a-1500", "season": "25/26", "date": "2025-12-06", "time": "15:00", "datetime_utc": "2025-12-06T15:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "A", "location": ""}, {"id": "2025-12-13-pl-brightonhovealbion-h-1500", "season": "25/26", "date": "2025-12-13", "time": "15:00", "datetime_utc": "2025-12-13T15:00:00Z", "competition": "PL", "opponent": "Brighton & Hove Albion", "venue": "H", "location": ""}, {"id": "2025-12-20-pl-tottenhamhotspur-a-1500", "season": "25/26", "date": "2025-12-20", "time": "15:00", "datetime_utc": "2025-12-20T15:00:00Z", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "A", "location": ""}, {"id": "2025-12-27-pl-wolverhamptonwanderers-h-1500", "season": "25/26", "date": "2025-12-27", "time": "15:00", "datetime_utc": "2025-12-27T15:00:00Z", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "H", "location": ""}, {"id": "2025-12-30-pl-leedsunited-h-2000", "season": "25/26", "date": "2025-12-30", "time": "20:00", "datetime_utc": "2025-12-30T20:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "H", "location": ""}, {"id": "2026-01-08-pl-arsenal-a", "season": "25/26", "datetime_utc": "2026-01-08T00:00:00+00:00", "date": "2026-01-08", "time": "00:00", "competition": "PL", "opponent": "Arsenal", "venue": "A", "location": "Emirates Stadium\\, London"}, {"id": "2026-01-12-fa-barnsley-h", "season": "25/26", "datetime_utc": "2026-01-12T00:00:00+00:00", "date": "2026-01-12", "time": "00:00", "competition": "FA", "opponent": "Barnsley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-17-pl-burnley-h", "season": "25/26", "datetime_utc": "2026-01-17T00:00:00+00:00", "date": "2026-01-17", "time": "00:00", "competition": "PL", "opponent": "Burnley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-18-other-welcometoliverpoolfc!-h", "season": "25/26", "datetime_utc": "2026-01-18T00:00:00+00:00", "date": "2026-01-18", "time": "00:00", "competition": "OTHER", "opponent": "Welcome to Liverpool FC!", "venue": "H", "location": "Proudly powered by ECAL"}, {"id": "2026-01-21-ucl-marseille-a", "season": "25/26", "datetime_utc": "2026-01-21T00:00:00+00:00", "date": "2026-01-21", "time": "00:00", "competition": "UCL", "opponent": "Marseille", "venue": "A", "location": "Orange Vélodrome\\, Marseille"}, {"id": "2026-01-24-pl-bournemouth-a", "season": "25/26", "datetime_utc": "2026-01-24T00:00:00+00:00", "date": "2026-01-24", "time": "00:00", "competition": "PL", "opponent": "Bournemouth", "venue": "A", "location": "Vitality Stadium\\, Bournemouth"}, {"id": "2026-01-28-ucl-qarabag-h", "season": "25/26", "datetime_utc": "2026-01-28T00:00:00+00:00", "date": "2026-01-28", "time": "00:00", "competition": "UCL", "opponent": "Qarabag", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-31-pl-newcastleunited-h", "season": "25/26", "datetime_utc": "2026-01-31T00:00:00+00:00", "date": "2026-01-31", "time": "00:00", "competition": "PL", "opponent": "Newcastle United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-08-pl-manchestercity-h", "season": "25/26", "datetime_utc": "2026-02-08T00:00:00+00:00", "date": "2026-02-08", "time": "00:00", "competition": "PL", "opponent": "Manchester City", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-11-pl-sunderland-a", "season": "25/26", "datetime_utc": "2026-02-11T00:00:00+00:00", "date": "2026-02-11", "time": "00:00", "competition": "PL", "opponent": "Sunderland", "venue": "A", "location": "Stadium of Light\\, Sunderland"}, {"id": "2026-02-14-fa-brightonandhovealbion-h", "season": "25/26", "datetime_utc": "2026-02-14T00:00:00+00:00", "date": "2026-02-14", "time": "00:00", "competition": "FA", "opponent": "Brighton and Hove Albion", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-21-pl-nottinghamforest-a", "season": "25/26", "datetime_utc": "2026-02-21T00:00:00+00:00", "date": "2026-02-21", "time": "00:00", "competition": "PL", "opponent": "Nottingham Forest", "venue": "A", "location": "The City Ground\\, Nottingham"}, {"id": "2026-02-28-pl-westhamunited-h", "season": "25/26", "datetime_utc": "2026-02-28T00:00:00+00:00", "date": "2026-02-28", "time": "00:00", "competition": "PL", "opponent": "West Ham United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-04-pl-wolverhamptonwanderers-a", "season": "25/26", "datetime_utc": "2026-03-04T00:00:00+00:00", "date": "2026-03-04", "time": "00:00", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "A", "location": "Molineux Stadium\\, Wolverhampton"}, {"id": "2026-03-14-pl-tottenhamhotspur-h", "season": "25/26", "datetime_utc": "2026-03-14T00:00:00+00:00", "date": "2026-03-14", "time": "00:00", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-21-pl-brightonandhovealbion-a", "season": "25/26", "datetime_utc": "2026-03-21T00:00:00+00:00", "date": "2026-03-21", "time": "00:00", "competition": "PL", "opponent": "Brighton and Hove Albion", "venue": "A", "location": "American Express Stadium\\, Falmer"}, {"id": "2026-04-11-pl-fulham-h", "season": "25/26", "datetime_utc": "2026-04-11T00:00:00+00:00", "date": "2026-04-11", "time": "00:00", "competition": "PL", "opponent": "Fulham", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-04-18-pl-everton-a", "season": "25/26", "datetime_utc": "2026-04-18T00:00:00+00:00", "date": "2026-04-18", "time": "00:00", "competition": "PL", "opponent": "Everton", "venue": "A", "location": "Hill Dickinson Stadium\\, Liverpool"}, {"id": "2026-04-25-pl-crystalpalace-h", "season": "25/26", "datetime_utc": "2026-04-25T00:00:00+00:00", "date": "2026-04-25", "time": "00:00", "competition": "PL", "opponent": "Crystal Palace", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-02-pl-manchesterunited-a", "season": "25/26", "datetime_utc": "2026-05-02T00:00:00+00:00", "date": "2026-05-02", "time": "00:00", "competition": "PL", "opponent": "Manchester United", "venue": "A", "location": "Old Trafford\\, Manchester"}, {"id": "2026-05-09-pl-chelsea-h", "season": "25/26", "datetime_utc": "2026-05-09T00:00:00+00:00", "date": "2026-05-09", "time": "00:00", "competition": "PL", "opponent": "Chelsea", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-17-pl-astonvilla-a", "season": "25/26", "datetime_utc": "2026-05-17T00:00:00+00:00", "date": "2026-05-17", "time": "00:00", "competition": "PL", "opponent": "Aston Villa", "venue": "A", "location": "Villa Park\\, Birmingham"}, {"id": "2026-05-24-pl-brentford-h", "season": "25/26", "datetime_utc": "2026-05-24T00:00:00+00:00", "date": "2026-05-24", "time": "00:00", "competition": "PL", "opponent": "Brentford", "venue": "H", "location": "Anfield\\, Liverpool"}]</sc<script>
+<script type="application/json" id="fixturesData">[{"id": "2025-08-15-pl-bournemouth-h-2000", "season": "25/26", "date": "2025-08-15", "time": "20:00", "datetime_utc": "2025-08-15T20:00:00Z", "competition": "PL", "opponent": "Bournemouth", "venue": "H", "location": ""}, {"id": "2025-08-23-pl-newcastleunited-a-1500", "season": "25/26", "date": "2025-08-23", "time": "15:00", "datetime_utc": "2025-08-23T15:00:00Z", "competition": "PL", "opponent": "Newcastle United", "venue": "A", "location": ""}, {"id": "2025-08-30-pl-arsenal-h-1500", "season": "25/26", "date": "2025-08-30", "time": "15:00", "datetime_utc": "2025-08-30T15:00:00Z", "competition": "PL", "opponent": "Arsenal", "venue": "H", "location": ""}, {"id": "2025-09-13-pl-burnley-a-1500", "season": "25/26", "date": "2025-09-13", "time": "15:00", "datetime_utc": "2025-09-13T15:00:00Z", "competition": "PL", "opponent": "Burnley", "venue": "A", "location": ""}, {"id": "2025-09-20-pl-everton-h-1500", "season": "25/26", "date": "2025-09-20", "time": "15:00", "datetime_utc": "2025-09-20T15:00:00Z", "competition": "PL", "opponent": "Everton", "venue": "H", "location": ""}, {"id": "2025-09-27-pl-crystalpalace-a-1500", "season": "25/26", "date": "2025-09-27", "time": "15:00", "datetime_utc": "2025-09-27T15:00:00Z", "competition": "PL", "opponent": "Crystal Palace", "venue": "A", "location": ""}, {"id": "2025-10-04-pl-chelsea-a-1500", "season": "25/26", "date": "2025-10-04", "time": "15:00", "datetime_utc": "2025-10-04T15:00:00Z", "competition": "PL", "opponent": "Chelsea", "venue": "A", "location": ""}, {"id": "2025-10-18-pl-manchesterunited-h-1500", "season": "25/26", "date": "2025-10-18", "time": "15:00", "datetime_utc": "2025-10-18T15:00:00Z", "competition": "PL", "opponent": "Manchester United", "venue": "H", "location": ""}, {"id": "2025-10-25-pl-brentford-a-1500", "season": "25/26", "date": "2025-10-25", "time": "15:00", "datetime_utc": "2025-10-25T15:00:00Z", "competition": "PL", "opponent": "Brentford", "venue": "A", "location": ""}, {"id": "2025-11-01-pl-astonvilla-h-1500", "season": "25/26", "date": "2025-11-01", "time": "15:00", "datetime_utc": "2025-11-01T15:00:00Z", "competition": "PL", "opponent": "Aston Villa", "venue": "H", "location": ""}, {"id": "2025-11-08-pl-manchestercity-a-1500", "season": "25/26", "date": "2025-11-08", "time": "15:00", "datetime_utc": "2025-11-08T15:00:00Z", "competition": "PL", "opponent": "Manchester City", "venue": "A", "location": ""}, {"id": "2025-11-22-pl-nottinghamforest-h-1500", "season": "25/26", "date": "2025-11-22", "time": "15:00", "datetime_utc": "2025-11-22T15:00:00Z", "competition": "PL", "opponent": "Nottingham Forest", "venue": "H", "location": ""}, {"id": "2025-11-29-pl-westhamunited-a-1500", "season": "25/26", "date": "2025-11-29", "time": "15:00", "datetime_utc": "2025-11-29T15:00:00Z", "competition": "PL", "opponent": "West Ham United", "venue": "A", "location": ""}, {"id": "2025-12-03-pl-sunderland-h-2000", "season": "25/26", "date": "2025-12-03", "time": "20:00", "datetime_utc": "2025-12-03T20:00:00Z", "competition": "PL", "opponent": "Sunderland", "venue": "H", "location": ""}, {"id": "2025-12-06-pl-leedsunited-a-1500", "season": "25/26", "date": "2025-12-06", "time": "15:00", "datetime_utc": "2025-12-06T15:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "A", "location": ""}, {"id": "2025-12-13-pl-brightonhovealbion-h-1500", "season": "25/26", "date": "2025-12-13", "time": "15:00", "datetime_utc": "2025-12-13T15:00:00Z", "competition": "PL", "opponent": "Brighton & Hove Albion", "venue": "H", "location": ""}, {"id": "2025-12-20-pl-tottenhamhotspur-a-1500", "season": "25/26", "date": "2025-12-20", "time": "15:00", "datetime_utc": "2025-12-20T15:00:00Z", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "A", "location": ""}, {"id": "2025-12-27-pl-wolverhamptonwanderers-h-1500", "season": "25/26", "date": "2025-12-27", "time": "15:00", "datetime_utc": "2025-12-27T15:00:00Z", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "H", "location": ""}, {"id": "2025-12-30-pl-leedsunited-h-2000", "season": "25/26", "date": "2025-12-30", "time": "20:00", "datetime_utc": "2025-12-30T20:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "H", "location": ""}, {"id": "2026-01-08-pl-arsenal-a", "season": "25/26", "datetime_utc": "2026-01-08T00:00:00+00:00", "date": "2026-01-08", "time": "00:00", "competition": "PL", "opponent": "Arsenal", "venue": "A", "location": "Emirates Stadium\\, London"}, {"id": "2026-01-12-fa-barnsley-h", "season": "25/26", "datetime_utc": "2026-01-12T00:00:00+00:00", "date": "2026-01-12", "time": "00:00", "competition": "FA", "opponent": "Barnsley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-17-pl-burnley-h", "season": "25/26", "datetime_utc": "2026-01-17T00:00:00+00:00", "date": "2026-01-17", "time": "00:00", "competition": "PL", "opponent": "Burnley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-18-other-welcometoliverpoolfc!-h", "season": "25/26", "datetime_utc": "2026-01-18T00:00:00+00:00", "date": "2026-01-18", "time": "00:00", "competition": "OTHER", "opponent": "Welcome to Liverpool FC!", "venue": "H", "location": "Proudly powered by ECAL"}, {"id": "2026-01-21-ucl-marseille-a", "season": "25/26", "datetime_utc": "2026-01-21T00:00:00+00:00", "date": "2026-01-21", "time": "00:00", "competition": "UCL", "opponent": "Marseille", "venue": "A", "location": "Orange Vélodrome\\, Marseille"}, {"id": "2026-01-24-pl-bournemouth-a", "season": "25/26", "datetime_utc": "2026-01-24T00:00:00+00:00", "date": "2026-01-24", "time": "00:00", "competition": "PL", "opponent": "Bournemouth", "venue": "A", "location": "Vitality Stadium\\, Bournemouth"}, {"id": "2026-01-28-ucl-qarabag-h", "season": "25/26", "datetime_utc": "2026-01-28T00:00:00+00:00", "date": "2026-01-28", "time": "00:00", "competition": "UCL", "opponent": "Qarabag", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-31-pl-newcastleunited-h", "season": "25/26", "datetime_utc": "2026-01-31T00:00:00+00:00", "date": "2026-01-31", "time": "00:00", "competition": "PL", "opponent": "Newcastle United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-08-pl-manchestercity-h", "season": "25/26", "datetime_utc": "2026-02-08T00:00:00+00:00", "date": "2026-02-08", "time": "00:00", "competition": "PL", "opponent": "Manchester City", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-11-pl-sunderland-a", "season": "25/26", "datetime_utc": "2026-02-11T00:00:00+00:00", "date": "2026-02-11", "time": "00:00", "competition": "PL", "opponent": "Sunderland", "venue": "A", "location": "Stadium of Light\\, Sunderland"}, {"id": "2026-02-14-fa-brightonandhovealbion-h", "season": "25/26", "datetime_utc": "2026-02-14T00:00:00+00:00", "date": "2026-02-14", "time": "00:00", "competition": "FA", "opponent": "Brighton and Hove Albion", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-21-pl-nottinghamforest-a", "season": "25/26", "datetime_utc": "2026-02-21T00:00:00+00:00", "date": "2026-02-21", "time": "00:00", "competition": "PL", "opponent": "Nottingham Forest", "venue": "A", "location": "The City Ground\\, Nottingham"}, {"id": "2026-02-28-pl-westhamunited-h", "season": "25/26", "datetime_utc": "2026-02-28T00:00:00+00:00", "date": "2026-02-28", "time": "00:00", "competition": "PL", "opponent": "West Ham United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-04-pl-wolverhamptonwanderers-a", "season": "25/26", "datetime_utc": "2026-03-04T00:00:00+00:00", "date": "2026-03-04", "time": "00:00", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "A", "location": "Molineux Stadium\\, Wolverhampton"}, {"id": "2026-03-14-pl-tottenhamhotspur-h", "season": "25/26", "datetime_utc": "2026-03-14T00:00:00+00:00", "date": "2026-03-14", "time": "00:00", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-21-pl-brightonandhovealbion-a", "season": "25/26", "datetime_utc": "2026-03-21T00:00:00+00:00", "date": "2026-03-21", "time": "00:00", "competition": "PL", "opponent": "Brighton and Hove Albion", "venue": "A", "location": "American Express Stadium\\, Falmer"}, {"id": "2026-04-11-pl-fulham-h", "season": "25/26", "datetime_utc": "2026-04-11T00:00:00+00:00", "date": "2026-04-11", "time": "00:00", "competition": "PL", "opponent": "Fulham", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-04-18-pl-everton-a", "season": "25/26", "datetime_utc": "2026-04-18T00:00:00+00:00", "date": "2026-04-18", "time": "00:00", "competition": "PL", "opponent": "Everton", "venue": "A", "location": "Hill Dickinson Stadium\\, Liverpool"}, {"id": "2026-04-25-pl-crystalpalace-h", "season": "25/26", "datetime_utc": "2026-04-25T00:00:00+00:00", "date": "2026-04-25", "time": "00:00", "competition": "PL", "opponent": "Crystal Palace", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-02-pl-manchesterunited-a", "season": "25/26", "datetime_utc": "2026-05-02T00:00:00+00:00", "date": "2026-05-02", "time": "00:00", "competition": "PL", "opponent": "Manchester United", "venue": "A", "location": "Old Trafford\\, Manchester"}, {"id": "2026-05-09-pl-chelsea-h", "season": "25/26", "datetime_utc": "2026-05-09T00:00:00+00:00", "date": "2026-05-09", "time": "00:00", "competition": "PL", "opponent": "Chelsea", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-17-pl-astonvilla-a", "season": "25/26", "datetime_utc": "2026-05-17T00:00:00+00:00", "date": "2026-05-17", "time": "00:00", "competition": "PL", "opponent": "Aston Villa", "venue": "A", "location": "Villa Park\\, Birmingham"}, {"id": "2026-05-24-pl-brentford-h", "season": "25/26", "datetime_utc": "2026-05-24T00:00:00+00:00", "date": "2026-05-24", "time": "00:00", "competition": "PL", "opponent": "Brentford", "venue": "H", "location": "Anfield\\, Liverpool"}]</script>
+
+<script>
 /* Inlined app script (single-file build) */
 
 /* Inlined app script (single-file build) */
@@ -588,9 +560,6 @@ function safeSetValue(id, val){
   return true;
 }
 /* TicketHelpLFC Credit Tracker – PWA Starter (Local-only) */
-
-const SUPPORT_BMAC_URL = "https://buymeacoffee.com/YOUR_PAGE"; // <-- replace with your real BuyMeACoffee link
-const FEEDBACK_TO_EMAIL = "YOUR_EMAIL@example.com"; // <-- replace with your email address
 
 const STORAGE_KEY = "thlfc_credit_tracker_v1";
 
@@ -1288,6 +1257,55 @@ function bindSettings() {
   });
 }
 
+
+// --- Support & Feedback ---
+const SUPPORT_BMAC_URL = "https://buymeacoffee.com/"; // TODO: replace with your actual page
+const SUPPORT_FEEDBACK_EMAIL = ""; // TODO: replace with your email (e.g. tickethelplfc@gmail.com)
+
+function openSupport(){
+  const dlg = $("supportModal");
+  if (!dlg) return;
+  if (typeof dlg.showModal === "function") dlg.showModal();
+  else dlg.classList.remove("hidden");
+}
+
+function closeSupport(){
+  const dlg = $("supportModal");
+  if (!dlg) return;
+  if (typeof dlg.close === "function") dlg.close();
+  else dlg.classList.add("hidden");
+}
+
+function wireSupport(){
+  onEl("btnSupport","click", openSupport);
+  onEl("btnSupportClose","click", closeSupport);
+  onEl("btnBmac","click", () => {
+    if (!SUPPORT_BMAC_URL || SUPPORT_BMAC_URL === "https://buymeacoffee.com/") {
+      alert("Buy Me a Coffee link not set yet.");
+      return;
+    }
+    window.open(SUPPORT_BMAC_URL, "_blank", "noopener");
+  });
+  onEl("supportSend","click", (e) => {
+    e.preventDefault();
+    const msg = ($("supportMsg")?.value || "").trim();
+    const from = ($("supportEmail")?.value || "").trim();
+    if (!msg) {
+      alert("Please enter your feedback message.");
+      return;
+    }
+    if (!SUPPORT_FEEDBACK_EMAIL) {
+      alert("Feedback email not set yet.");
+      return;
+    }
+    const subject = encodeURIComponent("TicketHelpLFC Credit Tracker feedback");
+    const body = encodeURIComponent(`From: ${from || "(not provided)"}
+
+${msg}`);
+    window.location.href = `mailto:${SUPPORT_FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
+  });
+}
+
 function addSeason() {
   const label = prompt("Season label (e.g. 2026/27):");
   if (!label) return;
@@ -1344,6 +1362,8 @@ function bindEvents() {
     });
   });
 
+    wireSupport();
+
   onEl("accountSelect","change",(e)=> setActiveAccount(e.target.value));
   onEl("seasonSelect","change",(e)=> setActiveSeason(e.target.value));
   onEl("btnAddAccount","click", openSetupForNewAccount);
@@ -1352,20 +1372,21 @@ function bindEvents() {
   onEl("matchSort","change", renderMatches);
 
   
-  onEl("btnClearForm","click", clearForm);
+  $("btnClearForm").addEventListener("click", clearForm);
 
   document.querySelectorAll(".chip").forEach(ch => {
     ch.addEventListener("click", () => setCreditChip(ch.dataset.credit));
   });
 
-  onEl("ticketAction","change",(e)=>{
-  const cc = $("creditCounts");
-  const current = cc ? cc.value : "unsure";
-  if (current === "unsure") {
-    setCreditChip(defaultCreditFromAction(e.target.value));
-  }
-});
-onEl("btnReloadFixtures","click", ()=>{ fixturesCache=null; renderFixtures(); });
+  $("ticketAction").addEventListener("change", (e) => {
+    const cc = $("creditCounts");
+    const current = cc ? cc.value : "unsure";
+    if (current === "unsure") {
+      setCreditChip(defaultCreditFromAction(e.target.value));
+    }
+  });
+
+  onEl("btnReloadFixtures","click", ()=>{ fixturesCache=null; renderFixtures(); });
   onEl("fixtureShow","change", renderFixtures);
   onEl("fixtureComp","change", renderFixtures);
 
@@ -1406,7 +1427,7 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
     });
   }
 
-  onEl("matchForm","submit",(e)=>{
+  $("matchForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const m = upsertMatchFromForm();
     if (!m) return;
@@ -1422,17 +1443,17 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
     $(id).addEventListener("change", renderMatches);
   });
 
-  onEl("btnExportJSON","click", exportJSON);
-  onEl("btnExportCSV","click", exportCSV);
-  onEl("btnExportJSON2","click", exportJSON);
-  onEl("btnExportCSV2","click", exportCSV);
+  $("btnExportJSON").addEventListener("click", exportJSON);
+  $("btnExportCSV").addEventListener("click", exportCSV);
+  $("btnExportJSON2").addEventListener("click", exportJSON);
+  $("btnExportCSV2").addEventListener("click", exportCSV);
 
-  onEl("importFile","change",(e)=>{
+  $("importFile").addEventListener("change", (e) => {
     const f = e.target.files?.[0];
     if (f) importJSONFile(f);
     e.target.value = "";
   });
-  onEl("importFile2","change",(e)=>{
+  $("importFile2").addEventListener("change", (e) => {
     const f = e.target.files?.[0];
     if (f) importJSONFile(f);
     e.target.value = "";
@@ -1445,11 +1466,6 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
   // Setup screen
   onEl("setupCount","input", renderSetupNames);
   onEl("btnSetupCreate","click", () => { try { saveSetup(); } catch(e){ alert("Setup error: " + (e && e.message ? e.message : e)); console.error(e); } });
-
-onEl("btnSupport","click", openSupport);
-onEl("btnCloseSupport","click", closeSupport);
-onEl("btnBmac","click", ()=> window.open(SUPPORT_BMAC_URL, "_blank", "noopener"));
-onEl("btnSendFeedback","click", sendFeedback);
 }
 
 function init() {
@@ -1960,50 +1976,7 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
-
-
-function openSupport(){
-  const dlg = $("supportModal");
-  if (!dlg) return;
-  dlg.classList.remove("hidden");
-  if (dlg.showModal) dlg.showModal();
-  else dlg.setAttribute("open","");
-  // clear status
-  const st = $("feedbackStatus");
-  if (st) st.textContent = "";
-}
-
-function closeSupport(){
-  const dlg = $("supportModal");
-  if (!dlg) return;
-  try { dlg.close(); } catch(e) {}
-  dlg.classList.add("hidden");
-}
-
-function sendFeedback(){
-  const msg = ($("feedbackMsg")?.value || "").trim();
-  const email = ($("feedbackEmail")?.value || "").trim();
-  const status = $("feedbackStatus");
-
-  if (!msg){
-    if (status) status.textContent = "Please enter a message first.";
-    return;
-  }
-
-  // Default: open device email app (works without any backend)
-  const subject = encodeURIComponent("TicketHelpLFC Credit Tracker Feedback");
-  const body = encodeURIComponent(
-    (email ? ("From: " + email + "\n\n") : "") +
-    msg +
-    "\n\n---\nSent from the Credit Tracker app"
-  );
-
-  // If you later want silent sending, we can swap this for a Formspree/Netlify endpoint.
-  window.location.href = `mailto:${FEEDBACK_TO_EMAIL}?subject=${subject}&body=${body}`;
-
-  if (status) status.textContent = "Opening your email app…";
-}
-</script>script>
+</script>
 
 </body>
 </html>
