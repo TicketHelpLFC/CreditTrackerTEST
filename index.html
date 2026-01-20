@@ -355,6 +355,28 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 .hidden{
   display:none;
 }
+
+/* Keep credit indicator tidy on long fixture names */
+.fixtureRow{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.fixtureMain{
+  flex:1;
+  min-width:0; /* allows text truncation */
+}
+
+.creditPill{
+  flex-shrink:0;
+  white-space:nowrap;
+}
+
+/* Ensure title wraps nicely without pushing credit */
+.fixtureTitle{
+  word-break:break-word;
+}
 </style>
 </head>
 <body>
