@@ -680,7 +680,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
     <h3 style="margin:0 0 6px;">☕ Support the tools</h3>
     <div class="hint" style="margin-bottom:10px;">
-      Built to help the community and kept free for everyone. Optional support helps with hosting + new features. Thank you ❤️
+      If these tools help you, you can chip in to support hosting + ongoing updates.
     </div>
     <button type="button" id="btnBmac" class="btn full">Open Buy Me a Coffee</button>
 
@@ -1955,11 +1955,7 @@ function prefillFromFixture(f) {
   $("matchDate").value = f.date || (f.datetime_utc ? f.datetime_utc.slice(0,10) : "");
   $("ticketAction").value = "credit";
   setCreditChip(defaultCreditFromAction("credit"));
-  // Optional: store time in notes if provided
-  if (f.time && f.time !== "00:00") {
-    $("notes").value = `KO ${f.time} — ${$("notes").value || ""}`.trim();
-  }
-  state.lastAddSource = "fixture";
+state.lastAddSource = "fixture";
   setView("add");
 }
 
@@ -2210,6 +2206,6 @@ onEl("btnToggleFeedback","click", ()=>{
 </script>
 
 
-  <footer class="buildFooter">YNWA</footer>
+  <footer class="buildFooter">Build 2026-01-19 • fixtures-small</footer>
 </body>
 </html>
