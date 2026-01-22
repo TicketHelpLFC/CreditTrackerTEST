@@ -8,16 +8,19 @@ if (!API_KEY) {
 }
 
 // API-Football v3 base (fixtures endpoint lives here)
-const BASE = "https://v3.football.api-sports.io"; // fixtures base URI 3
+const BASE = "https://v3.football.api-sports.io";
 
 async function api(path, params = {}) {
   const url = new URL(BASE + path);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
+  Object.entries(params).forEach(([k, v]) => {
+    if (v === undefined || v === null || v === "") return;
+    url.searchParams.set(k, String(v));
+  });
 
   const res = await fetch(url, {
     method: "GET",
     headers: {
-      "x-apisports-key": API_KEY, // required header 4
+      "x-apisports-key": API_KEY,
     },
   });
 
@@ -29,36 +32,47 @@ async function api(path, params = {}) {
 }
 
 async function getLiverpoolTeamId() {
-  // Find team id once (we’ll save it too)
   const data = await api("/teams", { search: "Liverpool" });
   const teams = data?.response ?? [];
-  const lfc = teams.find(t => t?.team?.name === "Liverpool" && t?.team?.country === "England")
-            ?? teams[0];
+  const lfc =
+    teams.find(
+      (t) => t?.team?.name === "Liverpool" && t?.team?.country === "England",
+    ) ?? teams[0];
 
   if (!lfc?.team?.id) throw new Error("Could not find Liverpool team id");
   return lfc.team.id;
 }
 
 function inferSeasonStartYear(now = new Date()) {
-  // Football seasons typically start mid-year; adjust as needed
   const y = now.getUTCFullYear();
   const m = now.getUTCMonth() + 1; // 1-12
-  return (m >= 7) ? y : (y - 1);
+  return m >= 7 ? y : y - 1;
 }
 
 async function main() {
   const teamId = await getLiverpoolTeamId();
-  const season = inferSeasonStartYear(); // e.g. 2025 for 2025/26
+  const season = Number(process.env.SEASON ?? inferSeasonStartYear()); // 2025 for 2025/26
+  const league = Number(process.env.LEAGUE_ID ?? 39); // EPL default
+  const timezone = process.env.TIMEZONE ?? "Europe/London";
 
-  // Fixtures endpoint supports team+season, plus timezone / from / to etc. 5
   const fixtures = await api("/fixtures", {
+    league,
     team: teamId,
     season,
-    timezone: "Europe/London",
+    timezone,
+    // Optional: uncomment if your plan prefers narrower queries
+    // from: `${season}-07-01`,
+    // to: `${season + 1}-06-30`,
   });
 
-  // Keep payload slim for your app
-  const out = (fixtures.response ?? []).map(f => ({
+  console.log(
+    `fixtures: results=${fixtures?.results ?? "?"} paging=${JSON.stringify(fixtures?.paging ?? {})}`,
+  );
+  if (fixtures?.errors && Object.keys(fixtures.errors).length) {
+    console.log("fixtures.errors:", fixtures.errors);
+  }
+
+  const out = (fixtures.response ?? []).map((f) => ({
     fixtureId: f.fixture?.id,
     dateUtc: f.fixture?.date,
     timestamp: f.fixture?.timestamp,
@@ -74,18 +88,26 @@ async function main() {
   }));
 
   fs.mkdirSync("public/data", { recursive: true });
-  fs.writeFileSync("public/data/lfc-fixtures.json", JSON.stringify({
-    generatedAt: new Date().toISOString(),
-    teamId,
-    season,
-    count: out.length,
-    fixtures: out
-  }, null, 2));
+  fs.writeFileSync(
+    "public/data/lfc-fixtures.json",
+    JSON.stringify(
+      {
+        generatedAt: new Date().toISOString(),
+        teamId,
+        season,
+        league,
+        count: out.length,
+        fixtures: out,
+      },
+      null,
+      2,
+    ),
+  );
 
   console.log(`Saved ${out.length} fixtures to public/data/lfc-fixtures.json`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
