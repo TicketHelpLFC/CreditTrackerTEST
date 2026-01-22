@@ -722,48 +722,42 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
   const el = document.getElementById("fixturesData");
   if (!el) return;
 
-  // Helper: slug for ids like your existing ones
   const slug = (s) => String(s || "")
     .toLowerCase()
     .replace(/&/g, "and")
     .replace(/[^a-z0-9]+/g, "")
     .trim();
 
-  // Build your existing fixture object shape from football-data
   const toAppFixture = (m, seasonLabel) => {
-    const isHome = m.home === "Liverpool FC";
+    const isHome = m.venue === "H" || m.home === "Liverpool FC";
     const venue = isHome ? "H" : "A";
-    const opponent = isHome ? m.away : m.home;
+    const opponent = m.opponent || (isHome ? m.away : m.home) || "—";
 
-    const dt = new Date(m.utcDate); // football-data gives UTC ISO
-    const date = dt.toISOString().slice(0, 10);
+    // date + time from your ICS JSON (already YYYY-MM-DD + HH:MM)
+    const date = (m.date || "").slice(0, 10);
+    const time = (m.time && m.time !== "00:00") ? m.time : "00:00";
 
-    // UK time (Europe/London)
-    const parts = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/London",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(dt).split(":");
-    const time = `${parts[0]}:${parts[1]}`;
+    // normalise competition codes so filters work
+    const compRaw = (m.competition || "OTHER").toUpperCase();
+    const competition =
+      ["PL", "UCL", "FAC", "LC", "OTHER"].includes(compRaw) ? compRaw : "OTHER";
 
-    const id = `${date}-${slug(m.competitionCode || m.competition || "other")}-${slug(opponent)}-${venue.toLowerCase()}-${time.replace(":", "")}`;
+    const id = `${date}-${slug(competition)}-${slug(opponent)}-${venue.toLowerCase()}-${time.replace(":", "")}`;
 
     return {
       id,
       season: seasonLabel,
       date,
       time,
-      datetime_utc: m.utcDate,
-      competition: m.competitionCode || m.competition || "OTHER",
+      datetime_utc: m.datetime_utc || `${date}T${time}:00Z`,
+      competition,
       opponent,
       venue,
-      location: ""
+      location: m.location || ""
     };
   };
 
   try {
-    // IMPORTANT: use relative path so it works on GitHub Pages subpaths
     let json = null;
     const candidates = [
       "./data/lfc-fixtures.json",
@@ -771,43 +765,39 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
       "/data/lfc-fixtures.json",
       "/public/data/lfc-fixtures.json"
     ];
+
     let lastErr = null;
+
     for (const url of candidates) {
       try {
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) continue;
-        json = await res.json();
+        const r = await fetch(url, { cache: "no-store" });
+        if (!r.ok) continue;
+        json = await r.json();
         console.log("✅ Loaded fixtures JSON from:", url);
         break;
-      } catch (e) { lastErr = e; }
+      } catch (e) {
+        lastErr = e;
+      }
     }
+
     if (!json) throw (lastErr || new Error("Failed to load fixtures JSON from any candidate path"));
 
-    if (!res.ok) throw new Error(`Failed to load fixtures JSON: ${res.status}`);
-    
-
-    // Derive season label from the JSON seasonWindow (e.g. 2025-08-01 -> "25/26")
+    // season label from the JSON seasonWindow: 2025 -> "25/26"
     const fromYear = (json.seasonWindow?.from || "").slice(0, 4);
     const y = Number(fromYear);
     const seasonLabel = (y && !Number.isNaN(y)) ? `${String(y).slice(2)}/${String(y + 1).slice(2)}` : "";
 
-    // football-data script writes { fixtures: [...] }
     const mapped = (json.fixtures || []).map(m => toAppFixture(m, seasonLabel));
-
-    // Inject into your existing app pipeline
     el.textContent = JSON.stringify(mapped);
+
     console.log("✅ Injected fixtures into #fixturesData:", mapped.length);
-
-    // OPTIONAL: if your app has an init function you need to re-run, call it here.
-    // Example:
-    // if (window.initApp) window.initApp();
-
   } catch (err) {
     console.error("❌ Fixtures load failed, using empty []", err);
     el.textContent = "[]";
   }
 })();
 </script>
+
 
 <script>
 /* Inlined app script (single-file build) */
