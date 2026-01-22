@@ -66,13 +66,21 @@ function parseTeamsAndScore(summary) {
 function detectCompetition(summary, description, location) {
   const hay = `${summary} ${description} ${location}`.toLowerCase();
 
-  if (hay.includes("premier league")) return "PL";
-  if (hay.includes("champions league") || hay.includes("uefa champions league")) return "UCL";
-  if (hay.includes("fa cup")) return "FAC";
-  if (hay.includes("carabao") || hay.includes("league cup") || hay.includes("efl cup")) return "LC";
+  // Champions League
+  if (hay.includes("champions league") || hay.includes("uefa champions league") || hay.includes("ucl")) return "UCL";
+
+  // FA Cup
+  if (hay.includes("fa cup") || hay.includes("emirates fa cup") || hay.includes("fac")) return "FAC";
+
+  // League Cup / Carabao / EFL Cup
+  if (hay.includes("carabao") || hay.includes("league cup") || hay.includes("efl cup") || hay.includes("lc")) return "LC";
+
+  // Premier League
+  if (hay.includes("premier league") || hay.includes("pl")) return "PL";
 
   return "OTHER";
 }
+
 
 function parseICS(icsRaw) {
   const ics = unwrapIcsText(icsRaw);
