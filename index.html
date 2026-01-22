@@ -175,6 +175,7 @@ body{
 .toggleRow{margin:10px 0}
 .toggle span{margin-left:8px}
 
+
 .breakdownTable{width:100%; border-collapse:separate; border-spacing:0 8px;}
 .breakdownTable th{color:var(--muted); font-size:12px; text-align:left; font-weight:800; padding:0 8px 6px;}
 .breakdownTable td{background:#0f0f0f; border:1px solid var(--border); padding:10px 8px;}
@@ -183,6 +184,8 @@ body{
 .breakdownPill{display:inline-block; padding:4px 8px; border-radius:999px; border:1px solid var(--border); background:var(--chip); font-size:12px; font-weight:800;}
 .breakdownPill.good{border-color: rgba(46,204,113,.5);}
 .breakdownPill.bad{border-color: rgba(255,77,77,.5);}
+
+
 
 .grid5{display:grid; grid-template-columns:repeat(5, 1fr); gap:10px}
 @media (max-width:980px){
@@ -195,15 +198,19 @@ body{
 .stat.small{padding:12px}
 .statValue.small{font-size:26px}
 
+
 .breakdownTable{width:100%; border-collapse:collapse; margin-top:10px}
 .breakdownTable th,.breakdownTable td{padding:10px; border-bottom:1px solid var(--border); text-align:left}
 .breakdownPill{display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:var(--chip); font-weight:800; font-size:12px}
 .breakdownPill.good{border-color: rgba(46,204,113,.5); background: rgba(46,204,113,.12)}
 .breakdownPill.neutral{border-color: rgba(154,160,166,.45); background: rgba(154,160,166,.10)}
 
+
 .modal.hidden{display:none !important}
 
 .brandLogo{width:34px;height:34px;border-radius:10px;display:block}
+
+
 
 /* Account bar layout (mobile-first) */
 .acctBar{ padding:14px; }
@@ -292,6 +299,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 .modalTitle{ font-weight:800; font-size:18px; }
 .hr{ height:1px; background: rgba(255,255,255,.08); margin:12px 0; border-radius:999px; }
 
+/* Support modal: iframe embed */
 /* Support modal: Google Form container (streamlined) */
 .formEmbedWrap{
   border: 1px solid rgba(255,255,255,.12);
@@ -324,6 +332,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
 /* Make all Support modal text white */
 #supportModal, #supportModal *{ color: var(--text) !important; }
+
 
 .toggleRow{
   display:flex;
@@ -407,7 +416,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
       <div class="acctBarActions">
         <button type="button" id="btnEditAccount" class="btn sm">✏️ Edit</button>
         <button type="button" id="btnDeleteAccount" class="btn danger sm">🗑️ Delete</button>
-      </div>
+</div>
     </section>
 
     <!-- Views -->
@@ -417,6 +426,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
       <button class="tab" data-view="fixtures">📅 Fixtures</button>
       <button class="tab" data-view="add">➕ Add</button>
     </nav>
+
 
     <!-- Setup (no popup) -->
     <section id="viewSetup" class="view hidden">
@@ -439,7 +449,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
         </div>
 
         <div class="fieldLabel" style="margin-top:10px;">AutoCup (HOME only — Away credits still tracked)</div>
-        <div class="hint" style="margin-top:10px;">Enter names below. AutoCup is saved per account *and per season*.</div>
+<div class="hint" style="margin-top:10px;">Enter names below. AutoCup is saved per account *and per season*.</div>
         <div id="setupNames" class="list" style="margin-top:10px;"></div>
 
         <div class="row gap wrap" style="margin-top:14px;">
@@ -462,19 +472,20 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
         <div id="compBreakdown" class="breakdown"></div>
       </section>
 
-      <section class="card">
-        <div class="label">📦 Backups</div>
-        <div class="row gap wrap">
-          <button id="btnExportJSON" class="btn">📤 Export JSON</button>
-          <button id="btnExportCSV" class="btn">📤 Export CSV</button>
-          <label class="btn fileBtn">
-            📥 Import JSON
-            <input id="importFile" type="file" accept="application/json" hidden />
-          </label>
-        </div>
-        <div class="hint">“JSON” is best for restoring exactly. “CSV” is for spreadsheets.</div>
-      </section>
-    </section>
+
+<section class="card">
+  <div class="label">📦 Backups</div>
+  <div class="row gap wrap">
+    <button id="btnExportJSON" class="btn">📤 Export JSON</button>
+    <button id="btnExportCSV" class="btn">📤 Export CSV</button>
+    <label class="btn fileBtn">
+      📥 Import JSON
+      <input id="importFile" type="file" accept="application/json" hidden />
+    </label>
+  </div>
+  <div class="hint">“JSON” is best for restoring exactly. “CSV” is for spreadsheets.</div>
+</section>
+</section>
 
     <!-- Matches -->
     <section id="viewMatches" class="view hidden">
@@ -524,6 +535,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
         <form id="matchForm" class="form">
           <input type="hidden" id="matchId" />
+          <input type="hidden" id="fixtureKey" />
 
           <div class="grid2">
             <div>
@@ -556,6 +568,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
           </div>
 
           <div class="grid2">
+            
             <div>
               <div class="fieldLabel">Ticket</div>
               <select id="ticketAction" class="select">
@@ -568,17 +581,18 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
                 <option value="scan_nocredit">Scan in (no credit)</option>
               </select>
             </div>
+
           </div>
 
           <div>
             <div class="fieldLabel">Credit outcome</div>
             <div class="chips" role="group" aria-label="Credit outcome">
-              <input type="hidden" id="creditCredit" value="unsure">
+<input type="hidden" id="creditCredit" value="unsure" />
+
               <button type="button" class="chip" data-credit="yes">🟢 Credit</button>
               <button type="button" class="chip" data-credit="no">🔴 No credit</button>
               <button type="button" class="chip active" data-credit="unsure">ℹ️ Unsure</button>
             </div>
-            <input type="hidden" id="creditCredit" value="unsure" />
           </div>
 
           <div>
@@ -603,6 +617,9 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
         </form>
       </section>
     </section>
+
+    <!-- Settings modal -->
+
 
     <!-- Fixtures -->
     <section id="viewFixtures" class="view hidden">
@@ -640,131 +657,156 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
         <div id="fixturesList" class="list" style="margin-top:12px;"></div>
         <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
 
-        <div class="row gap wrap" style="margin-top:14px;">
-          <button id="btnReloadFixtures" class="btn ghost sm">🔄 Refresh</button>
-          <label class="btn ghost fileBtn sm">📥 Import ICS
-            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
-          </label>
-          <button id="btnClearFixtures" class="btn ghost sm">🧹 Clear imported</button>
-        </div>
+<div class="row gap wrap" style="margin-top:14px;">
+  <button id="btnReloadFixtures" class="btn ghost sm">🔄 Refresh</button>
+  <label class="btn ghost fileBtn sm">📥 Import ICS
+    <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
+  </label>
+  <button id="btnClearFixtures" class="btn ghost sm">🧹 Clear imported</button>
+</div>
+      
       </section>
     </section>
 
-    <!-- Support & Feedback -->
-    <dialog id="supportModal" class="modal hidden">
-      <div class="modalInner">
-        <div class="modalHeader">
-          <div class="modalTitle">💬 Support & Feedback</div>
-          <button type="button" class="btn ghost sm" id="btnCloseSupport" aria-label="Close">✖</button>
-        </div>
+<!-- Support & Feedback -->
+<dialog id="supportModal" class="modal hidden">
+  <div class="modalInner">
+    <div class="modalHeader">
+      <div class="modalTitle">💬 Support & Feedback</div>
+      <button type="button" class="btn ghost sm" id="btnCloseSupport" aria-label="Close">✖</button>
+    </div>
 
-        <div class="hr"></div>
+    <div class="hr"></div>
 
-        <h3 style="margin:0 0 6px;">☕ Support the tools</h3>
-        <div class="hint" style="margin-bottom:10px;">
-          If these tools help you, you can chip in to support hosting + ongoing updates.
-        </div>
-        <button type="button" id="btnBmac" class="btn full">Open Buy Me a Coffee</button>
+    <h3 style="margin:0 0 6px;">☕ Support the tools</h3>
+    <div class="hint" style="margin-bottom:10px;">
+      If these tools help you, you can chip in to support hosting + ongoing updates.
+    </div>
+    <button type="button" id="btnBmac" class="btn full">Open Buy Me a Coffee</button>
 
-        <div class="hr" style="margin-top:16px;"></div>
+    <div class="hr" style="margin-top:16px;"></div>
 
-        <h3 style="margin:0 0 6px;">📝 Send feedback</h3>
-        <div class="hint" style="margin-bottom:10px;">
-          Fill this in and it’ll send straight to me via Google Forms.
-        </div>
+    <h3 style="margin:0 0 6px;">📝 Send feedback</h3>
+    <div class="hint" style="margin-bottom:10px;">
+      Fill this in and it’ll send straight to me via Google Forms.
+    </div>
 
-        <button id="btnToggleFeedback" class="toggleRow">
-          <span>📝 Give feedback</span>
-          <span id="feedbackArrow">▸</span>
-        </button>
+    
+<button id="btnToggleFeedback" class="toggleRow">
+  <span>📝 Give feedback</span>
+  <span id="feedbackArrow">▸</span>
+</button>
 
-        <div id="feedbackPanel" class="feedbackPanel hidden">
-          <div class="formEmbedWrap">
-            <iframe
-              id="feedbackFormFrame"
-              class="formEmbed"
-              src="https://docs.google.com/forms/d/e/1FAIpQLSeUg49KmDd8WaU9DYGaFpkVgHW93r6HUKsVVSVyGS9acRCrYw/viewform?embedded=true"
-              frameborder="0"
-              marginheight="0"
-              marginwidth="0"
-              loading="lazy"
-            >Loading…</iframe>
-          </div>
-        </div>
-      </div>
-    </dialog>
-  </main>
+<div id="feedbackPanel" class="feedbackPanel hidden">
+<div class="formEmbedWrap">
+      <iframe
+        id="feedbackFormFrame"
+        class="formEmbed"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSeUg49KmDd8WaU9DYGaFpkVgHW93r6HUKsVVSVyGS9acRCrYw/viewform?embedded=true"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        loading="lazy"
+      >Loading…</iframe>
+    </div>
+</div>
+  </div>
+</dialog>
+</main>
 
   <div class="hint" style="text-align:center;margin:20px 0;">Powered by TicketHelpLFC</div>
 
-  <!-- ✅ Fixtures injected here for offline-safe app logic -->
-  <script type="application/json" id="fixturesData">[]</script>
+<script type="application/json" id="fixturesData">[]</script>
+<script>
+(async () => {
+  const el = document.getElementById("fixturesData");
+  if (!el) return;
 
-  <!-- ✅ Loader: fetch football-data JSON, convert to your existing fixture shape, then signal readiness -->
-  <script>
-    window.__THLFC_FIXTURES_READY__ = (async () => {
-      const el = document.getElementById("fixturesData");
-      if (!el) return [];
+  // Helper: slug for ids like your existing ones
+  const slug = (s) => String(s || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "")
+    .trim();
 
-      const slug = (s) => String(s || "")
-        .toLowerCase()
-        .replace(/&/g, "and")
-        .replace(/[^a-z0-9]+/g, "")
-        .trim();
+  // Build your existing fixture object shape from football-data
+  const toAppFixture = (m, seasonLabel) => {
+    const isHome = m.home === "Liverpool FC";
+    const venue = isHome ? "H" : "A";
+    const opponent = isHome ? m.away : m.home;
 
-      const toAppFixture = (m, seasonLabel) => {
-        const isHome = m.home === "Liverpool FC";
-        const venue = isHome ? "H" : "A";
-        const opponent = isHome ? m.away : m.home;
+    const dt = new Date(m.utcDate); // football-data gives UTC ISO
+    const date = dt.toISOString().slice(0, 10);
 
-        const dt = new Date(m.utcDate);
-        const date = dt.toISOString().slice(0, 10);
+    // UK time (Europe/London)
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(dt).split(":");
+    const time = `${parts[0]}:${parts[1]}`;
 
-        const time = new Intl.DateTimeFormat("en-GB", {
-          timeZone: "Europe/London",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }).format(dt);
+    const id = `${date}-${slug(m.competitionCode || m.competition || "other")}-${slug(opponent)}-${venue.toLowerCase()}-${time.replace(":", "")}`;
 
-        const id = `${date}-${slug(m.competitionCode || m.competition || "other")}-${slug(opponent)}-${venue.toLowerCase()}-${time.replace(":", "")}`;
+    return {
+      id,
+      season: seasonLabel,
+      date,
+      time,
+      datetime_utc: m.utcDate,
+      competition: m.competitionCode || m.competition || "OTHER",
+      opponent,
+      venue,
+      location: ""
+    };
+  };
 
-        return {
-          id,
-          season: seasonLabel,
-          date,
-          time,
-          datetime_utc: m.utcDate,
-          competition: m.competitionCode || m.competition || "OTHER",
-          opponent,
-          venue,
-          location: ""
-        };
-      };
+  try {
+    // IMPORTANT: use relative path so it works on GitHub Pages subpaths
+    // Try the normal GitHub Pages path first. If you’re serving from a subfolder,
+// this still resolves correctly because it’s relative to index.html.
+let res = await fetch("./data/lfc-fixtures.json", { cache: "no-store" });
 
-      try {
-        const res = await fetch("./data/lfc-fixtures.json", { cache: "no-store" });
-        if (!res.ok) throw new Error(`Failed to load fixtures JSON: ${res.status}`);
-        const json = await res.json();
+// Some dev setups keep the JSON under /public/data. Try that as a fallback.
+if (!res.ok) {
+  res = await fetch("./public/data/lfc-fixtures.json", { cache: "no-store" });
+}
 
-        const fromYear = (json.seasonWindow?.from || "").slice(0, 4);
-        const y = Number(fromYear);
-        const seasonLabel = (y && !Number.isNaN(y)) ? `${String(y).slice(2)}/${String(y + 1).slice(2)}` : "";
+if (!res.ok) throw new Error(`Failed to load fixtures JSON: ${res.status}`);
+const json = await res.json();
 
-        const mapped = (json.fixtures || []).map(m => toAppFixture(m, seasonLabel));
-        el.textContent = JSON.stringify(mapped);
+    // Derive season label from the JSON seasonWindow (e.g. 2025-08-01 -> "25/26")
+    const fromYear = (json.seasonWindow?.from || "").slice(0, 4);
+    const y = Number(fromYear);
+    const seasonLabel = (y && !Number.isNaN(y)) ? `${String(y).slice(2)}/${String(y + 1).slice(2)}` : "";
 
-        console.log("✅ Fixtures ready:", mapped.length);
-        return mapped;
-      } catch (err) {
-        console.error("❌ Fixtures load failed, using empty []", err);
-        el.textContent = "[]";
-        return [];
-      }
-    })();
-  </script>
+    // football-data script writes { fixtures: [...] }
+    const mapped = (json.fixtures || []).map(m => toAppFixture(m, seasonLabel));
+
+    // Inject into your existing app pipeline
+    el.textContent = JSON.stringify(mapped);
+    console.log("✅ Injected fixtures into #fixturesData:", mapped.length);
+
+    // Tell the app it can re-read fixtures now.
+    window.__THLFC_FIXTURES_INJECTED = true;
+    try { window.fixturesCache = null; } catch (e) {}
+    try { if (typeof window.renderFixtures === "function") window.renderFixtures(); } catch (e) {}
+
+    // OPTIONAL: if your app has an init function you need to re-run, call it here.
+    // Example:
+    // if (window.initApp) window.initApp();
+
+  } catch (err) {
+    console.error("❌ Fixtures load failed, using empty []", err);
+    el.textContent = "[]";
+  }
+})();
+</script>
 
 <script>
+/* Inlined app script (single-file build) */
+
 /* Inlined app script (single-file build) */
 const BUILD_VERSION = "3.6.16-gh";
 
@@ -817,6 +859,7 @@ function todayISODate() {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
+
 
 function currentSeasonIdFromDate() {
   // UK football season: Aug->May. In Jan 2026, that is 2025/26.
@@ -906,6 +949,7 @@ function load() {
     };
   }
 
+
   // Migrate legacy autoCup -> per-season map (current season only)
   try{
     const sid = state.data.activeSeasonId || gen.activeSeasonId;
@@ -954,6 +998,8 @@ function setAutoCupForSeason(acc, seasonId, value){
     UCL: !!value.UCL
   };
 }
+
+
 
 function activeAccountId() {
   return state.data.activeAccountId;
@@ -1079,31 +1125,775 @@ function setView(viewName) {
   if (viewName === "fixtures") { setTimeout(() => { bindFixturesControls(); renderFixtures(); }, 0); }
 }
 
-/* ... the rest of your inlined app script is unchanged EXCEPT the loadFixturesData() function below ... */
+
+function renderSeasonSelect() {
+  const sel = $("seasonSelect");
+  sel.innerHTML = "";
+  for (const s of state.data.seasons) {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.label;
+    sel.appendChild(opt);
+  }
+  sel.value = activeSeasonId();
+
+  // mirror into modals if present
+  const onboardSeason = $("onboardSeason");
+  if (onboardSeason) {
+    onboardSeason.innerHTML = sel.innerHTML;
+    onboardSeason.value = sel.value;
+  }
+  const setupSeason = $("setupSeason");
+  if (setupSeason) {
+    setupSeason.innerHTML = sel.innerHTML;
+    setupSeason.value = sel.value;
+  }
+}
+
+function renderAccountSelect() {
+  const sel = $("accountSelect");
+  if (!sel) return;
+  sel.innerHTML = "";
+  for (const a of state.data.accounts) {
+    const opt = document.createElement("option");
+    opt.value = a.id;
+    opt.textContent = a.name;
+    sel.appendChild(opt);
+  }
+  sel.value = state.data.activeAccountId || (state.data.accounts[0] ? state.data.accounts[0].id : "");
+  if (!state.data.activeAccountId && sel.value) {
+    state.data.activeAccountId = sel.value;
+    save();
+  }
+}
+
+function renderDashboard() {
+  if (!activeAccountId()) {
+    if ($("statHome")) setText("statHome", "0");
+    if ($("statAway")) setText("statAway", "0");
+    if ($("statTotal")) setText("statTotal", "0");
+    setText("statSpend", formatGBP(0));
+    setText("statAvgSpend", formatGBP(0));
+    const mount = $("compBreakdown");
+    if (mount) mount.innerHTML = '<div class="empty">👤 Add an account to start tracking.</div>';
+    const root = $("recentList");
+    if (root) root.innerHTML = '<div class="empty">No activity yet.</div>';
+    return;
+  }
+
+  const totals = computeTotals(activeSeasonId());
+  const spend = computeSpend(activeSeasonId());
+  if ($("statHome")) setText("statHome", String(totals.home));
+  if ($("statAway")) setText("statAway", String(totals.away));
+  if ($("statTotal")) setText("statTotal", String(totals.total));
+  setText("statSpend", formatGBP(spend.total));
+  setText("statAvgSpend", formatGBP(spend.avg));
+
+  // Competition breakdown table
+  const acc = state.data.accounts.find(a => a.id === activeAccountId());
+  const autoCup = getAutoCupForSeason(acc, activeSeasonId());
+  const breakdown = computeBreakdownByCompetition(activeSeasonId());
+  const labels = { PL: "Premier League", UCL: "UCL", FAC: "FA Cup", LC: "League Cup", OTHER: "Other" };
+  const table = document.createElement("table");
+  table.className = "breakdownTable";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Competition</th>
+        <th>Home</th>
+        <th>Away</th>
+      </tr>
+    </thead>`;
+  const tbody = document.createElement("tbody");
+  for (const key of Object.keys(breakdown)) {
+    const row = document.createElement("tr");
+    const comp = document.createElement("td");
+    comp.textContent = labels[key] || key;
+    const h = document.createElement("td");
+    const homeAuto = (key === "LC" && autoCup.LC) || (key === "FAC" && autoCup.FAC) || (key === "UCL" && autoCup.UCL);
+    if (homeAuto) {
+      h.innerHTML = `<span class="breakdownPill neutral">AutoCup</span>`;
+    } else {
+      h.innerHTML = `<span class="breakdownPill good">H: ${breakdown[key].H}</span>`;
+    }
+    const a = document.createElement("td");
+    a.innerHTML = `<span class="breakdownPill good">A: ${breakdown[key].A}</span>`;
+    row.appendChild(comp);
+    row.appendChild(h);
+    row.appendChild(a);
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+  const mount = $("compBreakdown");
+  mount.innerHTML = "";
+  mount.appendChild(table);
+
+  // Recent list: last 6 updated
+  const matches = getSeasonMatches(activeSeasonId())
+    .slice()
+    .sort((a,b) => (b.updatedAt || b.createdAt).localeCompare(a.updatedAt || a.createdAt))
+    .slice(0, 6);
+
+  const root = $("recentList");
+  if (!root) return;
+  root.innerHTML = "";
+
+if (matches.length === 0) {
+    const div = document.createElement("div");
+    div.className = "empty";
+    div.textContent = "🎟️ No matches yet — tap ➕ Add match to start tracking.";
+    root.appendChild(div);
+    return;
+  }
+
+  for (const m of matches) {
+    root.appendChild(matchCard(m));
+  }
+
+}
+
+function matchCard(m) {
+  const div = document.createElement("div");
+  div.className = "item";
+  div.tabIndex = 0;
+  div.role = "button";
+
+  const top = document.createElement("div");
+  top.className = "itemTop";
+
+  const left = document.createElement("div");
+  const title = document.createElement("div");
+  title.className = "itemTitle";
+  title.textContent = formatMatchTitle(m);
+  const meta = document.createElement("div");
+  meta.className = "itemMeta";
+  meta.textContent = formatMeta(m);
+  left.appendChild(title);
+  left.appendChild(meta);
+
+  const credit = badgeForCredit(m);
+  const creditBadge = document.createElement("div");
+  creditBadge.className = `badge ${credit.cls}`;
+  creditBadge.textContent = credit.text;
+
+  top.appendChild(left);
+
+  const badges = document.createElement("div");
+  badges.className = "itemBadges";
+
+  if (typeof m.amountPaid === "number" && Number.isFinite(m.amountPaid)) {
+    const cost = document.createElement("div");
+    cost.className = "badge neutral";
+    cost.textContent = `💷 ${formatGBP(m.amountPaid)}`;
+    badges.appendChild(cost);
+  }
+  const comp = document.createElement("div");
+  comp.className = "badge red";
+  comp.textContent = `🏷️ ${m.competition}`;
+
+  badges.appendChild(creditBadge);
+  badges.appendChild(comp);
+
+  div.appendChild(top);
+  div.appendChild(badges);
+
+  if (m.notes && m.notes.trim()) {
+    const notes = document.createElement("div");
+    notes.className = "itemMeta";
+    notes.style.marginTop = "8px";
+    notes.textContent = `🗒️ ${m.notes.trim()}`;
+    div.appendChild(notes);
+  }
+
+  div.addEventListener("click", () => editMatch(m.id));
+  div.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") editMatch(m.id);
+  });
+
+  return div;
+}
+
+function renderMatches() {
+  const list = $("matchesList");
+  const empty = $("matchesEmpty");
+
+  const q = $("searchInput").value.trim().toLowerCase();
+  const v = $("filterVenue").value;
+  const c = $("filterComp").value;
+  const cr = $("filterCredit").value;
+
+  const matches = getSeasonMatches(activeSeasonId())
+    .filter(m => {
+      if (v && m.venue !== v) return false;
+      if (c && m.competition !== c) return false;
+      if (cr && m.creditCredit !== cr) return false;
+      if (q) {
+        const hay = `${m.opponent} ${m.notes || ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    })
+    .slice()
+    .sort((a,b) => {
+      const mode = ($("matchSort") ? $("matchSort").value : "matchDate");
+      if (mode === "dateAdded") {
+        return (Number(b.createdAt||0) - Number(a.createdAt||0));
+      }
+      return (b.matchDate || "").localeCompare(a.matchDate || "");
+    });
+
+  list.innerHTML = "";
+  if (matches.length === 0) {
+    empty.classList.remove("hidden");
+    return;
+  }
+  empty.classList.add("hidden");
+  for (const m of matches) list.appendChild(matchCard(m));
+}
+
+function clearForm() {
+  $("matchId").value = "";
+  if ($("fixtureKey")) $("fixtureKey").value = "";
+  $("opponent").value = "";
+  $("matchDate").value = todayISODate();
+  $("venue").value = "H";
+  $("competition").value = "PL";
+    $("ticketAction").value = "credit";
+  setCreditChip("unsure");
+  $("notes").value = "";
+  $("amountPaid").value = "";
+  $("btnDelete").hidden = true;
+}
+
+function setCreditChip(val) {
+  const cc = $("creditCredit");
+  if (cc) cc.value = val;
+  document.querySelectorAll(".chip").forEach(ch => {
+    ch.classList.toggle("active", ch.dataset.credit === val);
+  });
+}
+
+function defaultCreditFromAction(action) {
+  // Default credit behaviour from "Ticket" selection (user can override with chips)
+  const map = {
+    credit: "yes",
+    season_return: "no",
+    fwd_me_credit: "yes",
+    fwd_me_nocredit: "no",
+    hosp_credit: "yes",
+    hosp_nocredit: "no",
+    scan_nocredit: "no"
+  };
+  return map[action] || "unsure";
+}
+
+function upsertMatchFromForm() {
+  const id = $("matchId").value || uid();
+  const now = new Date().toISOString();
+
+  const m = {
+    id,
+    accountId: activeAccountId(),
+    seasonId: activeSeasonId(),
+    opponent: $("opponent").value.trim(),
+    venue: $("venue").value,
+    competition: $("competition").value,
+    matchDate: $("matchDate").value,
+    appliedStatus: "na",
+    ticketAction: $("ticketAction").value,
+    creditCredit: $("creditCredit").value,
+    notes: $("notes").value.trim(),
+    fixtureKey: ($("fixtureKey") ? $("fixtureKey").value.trim() : ""),
+    amountPaid: parseAmount($("amountPaid").value),
+    createdAt: now,
+    updatedAt: now
+  };
+
+  if (!m.opponent) {
+    alert("Please enter an opponent.");
+    return null;
+  }
+
+  // Prevent adding the same fixture twice (per account + season)
+  const isNew = ($("matchId").value || "") === "";
+  const fk = ($("fixtureKey") ? ($("fixtureKey").value || "").trim() : "");
+  if (isNew) {
+    const dup = state.data.matches.find(x =>
+      x.accountId === m.accountId &&
+      x.seasonId === m.seasonId &&
+      (
+        (fk && x.fixtureKey && x.fixtureKey === fk) ||
+        (!fk && x.opponent === m.opponent && x.matchDate === m.matchDate && x.competition === m.competition && x.venue === m.venue)
+      )
+    );
+    if (dup) {
+      alert("That fixture is already in your tracked matches for this account/season.");
+      return null;
+    }
+  }
+
+  const existingIdx = state.data.matches.findIndex(x => x.id === id);
+  if (existingIdx >= 0) {
+    m.createdAt = state.data.matches[existingIdx].createdAt;
+    state.data.matches[existingIdx] = m;
+  } else {
+    state.data.matches.push(m);
+  }
+
+  save();
+  return m;
+}
+
+function editMatch(id) {
+  const m = state.data.matches.find(x => x.id === id);
+  if (!m) return;
+
+  $("matchId").value = m.id;
+  $("opponent").value = m.opponent || "";
+  $("matchDate").value = m.matchDate || todayISODate();
+  $("venue").value = m.venue || "H";
+  $("competition").value = m.competition || "PL";
+    $("ticketAction").value = m.ticketAction || "used";
+  setCreditChip(m.creditCredit || "unsure");
+  $("notes").value = m.notes || "";
+  $("amountPaid").value = (m.amountPaid ?? "");
+
+  $("btnDelete").hidden = false;
+  state.lastAddSource = "fixture";
+  setView("add");
+}
+
+function deleteCurrentMatch() {
+  const id = $("matchId").value;
+  if (!id) return;
+  const ok = confirm("Delete this match entry?");
+  if (!ok) return;
+
+  state.data.matches = state.data.matches.filter(m => m.id !== id);
+  save();
+  clearForm();
+  renderAll();
+  setView(state.lastAddSource === "fixture" ? "fixtures" : "matches");
+}
+
+function downloadFile(filename, text, mime="application/octet-stream") {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportJSON() {
+  const payload = JSON.stringify(state.data, null, 2);
+  downloadFile(`thlfc-credits-${activeSeasonId()}-${new Date().toISOString().slice(0,10)}.json`, payload, "application/json");
+}
+
+function escapeCSV(s) {
+  const str = String(s ?? "");
+  if (/[,\"\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+  return str;
+}
+
+function exportCSV() {
+  const seasonId = activeSeasonId();
+  const rows = getSeasonMatches(seasonId)
+    .slice()
+    .sort((a,b) => (a.matchDate || "").localeCompare(b.matchDate || ""));
+
+  const header = [
+    "season","opponent","venue","competition","matchDate",
+    "appliedStatus","ticketAction","creditCredit","amountPaid","notes","createdAt","updatedAt"
+  ];
+
+  const lines = [header.join(",")];
+  for (const m of rows) {
+    lines.push([
+      seasonLabel(m.seasonId),
+      m.opponent,
+      m.venue,
+      m.competition,
+      m.matchDate,
+      m.appliedStatus,
+      m.ticketAction,
+      m.creditCredit,
+      m.amountPaid,
+      m.notes,
+      m.createdAt,
+      m.updatedAt
+    ].map(escapeCSV).join(","));
+  }
+
+  downloadFile(`thlfc-credits-${seasonId}-${new Date().toISOString().slice(0,10)}.csv`, lines.join("\n"), "text/csv");
+}
+
+function importJSONFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(String(reader.result));
+      if (!parsed || !parsed.seasons || !parsed.matches) throw new Error("Bad format");
+      state.data = parsed;
+      save();
+      renderAll();
+      alert("Import complete ✅");
+    } catch {
+      alert("Import failed ❌ (Invalid JSON backup)");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function openSettings(){
+  return;
+}
+
+function closeSettings(){
+  return;
+}
+
+function bindSettings(){
+  return;
+}
+
+function addSeason() {
+  const label = prompt("Season label (e.g. 2026/27):");
+  if (!label) return;
+  const id = label.replace(/\s+/g, "-").replace(/\//g, "-").toLowerCase();
+  if (state.data.seasons.some(s => s.id === id)) {
+    alert("That season already exists.");
+    return;
+  }
+  state.data.seasons.push({ id, label, createdAt: new Date().toISOString() });
+  state.data.activeSeasonId = id;
+  save();
+  renderAll();
+}
+
+function renderAll() {
+  renderSeasonSelect();
+  renderAccountSelect();
+  renderDashboard();
+  renderMatches();
+}
+
+function setupPWA() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+  }
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    state.deferredPrompt = e;
+    const btn = $("btnInstall");
+    btn.hidden = false;
+    btn.addEventListener("click", async () => {
+      btn.hidden = true;
+      state.deferredPrompt.prompt();
+      await state.deferredPrompt.userChoice;
+      state.deferredPrompt = null;
+    }, { once: true });
+  });
+}
+
+function onEl(id, evt, fn, opts) {
+  const el = $(id);
+  if (!el) return;
+  el.addEventListener(evt, fn, opts);
+}
+
+function bindEvents() {
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const v = tab.dataset.view;
+      setView(v);
+      if (v === "fixtures") {
+        renderFixtures();
+      }
+      if (v === "add") {
+        state.lastAddSource = "manual";
+      }
+    });
+});
+
+  onEl("accountSelect","change",(e)=> setActiveAccount(e.target.value));
+  onEl("seasonSelect","change",(e)=> setActiveSeason(e.target.value));
+  onEl("btnAddAccount","click", openSetupForNewAccount);
+  onEl("btnEditAccount","click", editActiveAccount);
+  onEl("btnDeleteAccount","click", deleteActiveAccount);
+  onEl("matchSort","change", renderMatches);
+
+  
+  $("btnClearForm").addEventListener("click", clearForm);
+
+  document.querySelectorAll(".chip").forEach(ch => {
+    ch.addEventListener("click", () => setCreditChip(ch.dataset.credit));
+  });
+
+  $("ticketAction").addEventListener("change", (e) => {
+    const cc = $("creditCredit");
+    const current = cc ? cc.value : "unsure";
+    if (current === "unsure") {
+      setCreditChip(defaultCreditFromAction(e.target.value));
+    }
+  });
+
+  onEl("btnReloadFixtures","click", ()=>{ fixturesCache=null; renderFixtures(); });
+  onEl("fixtureShow","change", renderFixtures);
+  onEl("fixtureComp","change", renderFixtures);
+
+  // Credit chips
+  document.querySelectorAll("[data-credit]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const val = btn.getAttribute("data-credit");
+      setCreditChip(val);
+    });
+  });
+
+  // Fixtures import
+  const fxInput = document.getElementById("importFixturesFile");
+  if (fxInput) {
+    fxInput.addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const parsed = parseICSFixtures(text);
+      const existing = getImportedFixtures();
+      const map = new Map();
+      [...existing, ...parsed].forEach(f=>{ if(f && f.id) map.set(f.id, f); });
+      setImportedFixtures(Array.from(map.values()));
+      fixturesCache = null;
+      try { showToast(`Imported ${parsed.length} fixtures`); } catch(e) { alert(`Imported ${parsed.length} fixtures`); }
+const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Imported ${parsed.length} fixtures`;
+      renderFixtures();
+      fxInput.value = "";
+    });
+  }
+  const clearBtn = document.getElementById("btnClearFixtures");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", ()=>{
+      setImportedFixtures([]);
+      fixturesCache = null;
+      alert("Imported fixtures cleared");
+      renderFixtures();
+    });
+  }
+
+  $("matchForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const m = upsertMatchFromForm();
+    if (!m) return;
+    clearForm();
+    renderAll();
+    setView(state.lastAddSource === "fixture" ? "fixtures" : "matches");
+  });
+
+  $("btnDelete").addEventListener("click", deleteCurrentMatch);
+
+  ["searchInput","filterVenue","filterComp","filterCredit"].forEach(id => {
+    $(id).addEventListener("input", renderMatches);
+    $(id).addEventListener("change", renderMatches);
+  });
+
+  $("btnExportJSON").addEventListener("click", exportJSON);
+  $("btnExportCSV").addEventListener("click", exportCSV);
+  onEl("btnExportJSON2","click", exportJSON);
+onEl("btnExportCSV2","click", exportCSV);
+$("importFile").addEventListener("change", (e) => {
+    const f = e.target.files?.[0];
+    if (f) importJSONFile(f);
+    e.target.value = "";
+  });
+  onEl("importFile2","change",(e)=>{
+    const f = e.target.files?.[0];
+    if (f) importJSONFile(f);
+    e.target.value = "";
+  });
+onEl("btnSettings","click", openSettings);
+  onEl("btnCloseSettings","click", closeSettings);
+  bindSettings();
+
+  // Setup screen
+  onEl("setupCount","input", renderSetupNames);
+  onEl("btnSetupCreate","click", () => { try { saveSetup(); } catch(e){ alert("Setup error: " + (e && e.message ? e.message : e)); console.error(e); } });
+
+onEl("btnSupport","click", openSupport);
+onEl("btnCloseSupport","click", closeSupport);
+onEl("btnBmac","click", ()=> window.open("https://buymeacoffee.com/TicketHelpLFC", "_blank", "noopener"));
+}
+
+function init() {
+  if (window.__THLFC_INITED) return;
+  window.__THLFC_INITED = true;
+  load();
+  setupPWA();
+  bindEvents();
+  try { bindFixturesControls(); } catch(e) {}
+  clearForm();
+  renderAll();
+  setView("dash");
+
+  if (!state.data.accounts || state.data.accounts.length === 0) {
+    setView("setup");
+    renderSetupNames();
+  
+}
+}
+
+/* ---------- Accounts + Setup ---------- */
+
+
+function renderSetupNames() {
+  const wrap = $("setupNames");
+  if (!wrap) return;
+
+  const count = Math.max(1, Math.min(10, parseInt($("setupCount")?.value || "1", 10)));
+
+    wrap.innerHTML = "";
+  for (let i = 1; i <= count; i++) {
+    const row = document.createElement("div");
+    row.className = "item";
+
+    row.innerHTML = `
+      <div class="fieldLabel">Account ${i}</div>
+      <input class="input" id="setupName_${i}" placeholder="${i === 1 ? "Me" : "Account " + i}" />
+
+      <div class="fieldLabel" style="margin-top:10px;">AutoCup (Home) for this account</div>
+      <div class="row wrap gap">
+        <label class="toggle">
+          <input type="checkbox" id="setupAccLC_${i}" />
+          <span>League Cup</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="setupAccFAC_${i}" />
+          <span>FA Cup</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="setupAccUCL_${i}" />
+          <span>Champions League</span>
+        </label>
+      </div>
+
+      <div class="hint" style="margin-top:8px;">AutoCup only affects <strong>HOME</strong> credits. Away credits still tracked.</div>
+    `;
+
+    wrap.appendChild(row);
+  }
+  try { populateAllSeasonSelects(); } catch(e) {}
+
+}
+
+
+function openSetupForNewAccount() {
+  // Convenience: go to setup screen but keep existing accounts
+  state.isAddingSingle = true;
+  setView("setup");
+  $("setupCount").value = "1";
+
+  // Ensure the setup season dropdown is populated with real season IDs
+  try { populateSeasonSelect($("setupSeason")); } catch(e) {}
+  if ($("setupSeason")) $("setupSeason").value = activeSeasonId();
+
+  renderSetupNames();
+}
+
+function saveSetup() {
+  const count = Math.max(1, Math.min(10, parseInt($("setupCount")?.value || "1", 10)));
+  const season = $("setupSeason")?.value || activeSeasonId();
+  setActiveSeason(season);
+
+  const createdIds = [];
+
+  // Create accounts from inputs (+ per-account AutoCup)
+  for (let i = 1; i <= count; i++) {
+    const val = ($("setupName_" + i)?.value || "").trim();
+    const name = val || (i === 1 ? "Me" : `Account ${i}`);
+
+    const autoCup = {
+      LC: !!$("setupAccLC_" + i)?.checked,
+      FAC: !!$("setupAccFAC_" + i)?.checked,
+      UCL: !!$("setupAccUCL_" + i)?.checked
+    };
+
+    const acc = createAccount(name, autoCup, season);
+    createdIds.push(acc.id);
+  }
+
+  // If adding a single new account, switch to it
+  if (state.isAddingSingle && createdIds.length > 0) {
+    setActiveAccount(createdIds[createdIds.length - 1]);
+  } else if (!activeAccountId() && createdIds.length > 0) {
+    setActiveAccount(createdIds[0]);
+  }
+
+  state.isAddingSingle = false;
+
+  // Feedback
+  try { showToast(`Saved ${createdIds.length} account(s)`); } catch(e) { if(createdIds.length===0) alert("No accounts were saved."); }
+
+  renderAll();
+  setView("dash");
+}
+
+
+
+function createAccount(name, autoCup={LC:false, FAC:false, UCL:false}, seasonId=null) {
+  const sid = seasonId || activeSeasonId();
+  const acc = {
+    id: uid(),
+    name: name.trim(),
+    // Per-season AutoCup settings
+    autoCupBySeason: {
+      [sid]: {
+        LC: !!autoCup.LC,
+        FAC: !!autoCup.FAC,
+        UCL: !!autoCup.UCL
+      }
+    },
+    // Legacy field (kept for backward-compat / export)
+    autoCup: {
+      LC: !!autoCup.LC,
+      FAC: !!autoCup.FAC,
+      UCL: !!autoCup.UCL
+    },
+    createdAt: new Date().toISOString()
+  };
+  state.data.accounts.push(acc);
+  if (!state.data.activeAccountId) state.data.activeAccountId = acc.id;
+  save();
+  return acc;
+}
+
+
 
 /* ---------- Fixtures ---------- */
 
 var fixturesCache = null;
 
+
+
+
 async function loadFixturesData() {
-  if (fixturesCache) return fixturesCache;
+  // If we already have real fixtures cached, use them.
+  if (Array.isArray(fixturesCache) && fixturesCache.length > 0) return fixturesCache;
 
-  // ✅ Wait for async fixtures loader to finish (if present)
-  try {
-    if (window.__THLFC_FIXTURES_READY__) {
-      await window.__THLFC_FIXTURES_READY__;
-    }
-  } catch (e) {}
-
-  // Primary: embedded JSON in index.html (offline + SW-safe)
+  // Always try reading the embedded JSON first (it may get injected asynchronously).
   try {
     const el = document.getElementById("fixturesData");
-    if (el && el.textContent) {
-      const arr = JSON.parse(el.textContent);
-      fixturesCache = Array.isArray(arr) ? arr : [];
-      return fixturesCache;
+    const raw = el ? (el.textContent || "").trim() : "";
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length > 0) {
+        fixturesCache = arr;
+        return fixturesCache;
+      }
+      // If it's valid but empty, don't permanently cache it yet — allow re-check after injection.
     }
-  } catch(e) {}
+  } catch (e) {}
 
   // Fallback: imported fixtures from localStorage
   try {
@@ -1112,12 +1902,11 @@ async function loadFixturesData() {
       fixturesCache = imported.slice();
       return fixturesCache;
     }
-  } catch(e) {}
+  } catch (e) {}
 
   fixturesCache = [];
   return fixturesCache;
 }
-
 
 function formatFixtureDate(f) {
   // Use date only (app stores matchDate only). Time may be 00:00 in feed.
@@ -1508,6 +2297,6 @@ onEl("btnToggleFeedback","click", ()=>{
 </script>
 
 
-  <footer class="buildFooter">YNWA</footer>
+  <footer class="buildFooter">Build 2026-01-19 • fixtures-small</footer>
 </body>
 </html>
