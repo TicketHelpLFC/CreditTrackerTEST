@@ -535,7 +535,6 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
         <form id="matchForm" class="form">
           <input type="hidden" id="matchId" />
-          <input type="hidden" id="fixtureKey" />
 
           <div class="grid2">
             <div>
@@ -587,12 +586,13 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
           <div>
             <div class="fieldLabel">Credit outcome</div>
             <div class="chips" role="group" aria-label="Credit outcome">
-<input type="hidden" id="creditCredit" value="unsure" />
+<input type="hidden" id="creditCredit" value="unsure">
 
               <button type="button" class="chip" data-credit="yes">🟢 Credit</button>
               <button type="button" class="chip" data-credit="no">🔴 No credit</button>
               <button type="button" class="chip active" data-credit="unsure">ℹ️ Unsure</button>
             </div>
+            <input type="hidden" id="creditCredit" value="unsure" />
           </div>
 
           <div>
@@ -722,81 +722,119 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
   const el = document.getElementById("fixturesData");
   if (!el) return;
 
-  // Helper: slug for ids like your existing ones
   const slug = (s) => String(s || "")
     .toLowerCase()
     .replace(/&/g, "and")
     .replace(/[^a-z0-9]+/g, "")
     .trim();
 
-  // Build your existing fixture object shape from football-data
-  const toAppFixture = (m, seasonLabel) => {
+  const deriveSeasonLabel = (fromDateYMD) => {
+    // expects "YYYY-MM-DD"
+    const y = Number(String(fromDateYMD || "").slice(0, 4));
+    const m = Number(String(fromDateYMD || "").slice(5, 7));
+    if (!y || Number.isNaN(y)) return "";
+    // UK season: starts around July/Aug. If month >= 7 treat as new season start.
+    const startYear = (m >= 7) ? y : (y - 1);
+    return `${String(startYear).slice(2)}/${String(startYear + 1).slice(2)}`;
+  };
+
+  const toUKTime = (utcIso) => {
+    try{
+      const dt = new Date(utcIso);
+      const parts = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(dt).split(":");
+      return `${parts[0]}:${parts[1]}`;
+    }catch(e){
+      return "00:00";
+    }
+  };
+
+  // Accept BOTH feeds:
+  // A) football-data style { utcDate, competitionCode, home, away, homeGoals, awayGoals }
+  // B) ICS script style { id, date, time, datetime_utc, competition, opponent, venue, homeGoals, awayGoals }
+  const normalize = (m, seasonLabel) => {
+    // If it already matches your app fixture shape, keep it.
+    const looksLikeApp =
+      (m && typeof m === "object") &&
+      ("date" in m) &&
+      ("competition" in m) &&
+      ("opponent" in m) &&
+      ("venue" in m);
+
+    if (looksLikeApp) {
+      const date = String(m.date || "").slice(0,10);
+      const time = (m.time && m.time !== "00:00") ? m.time : (m.datetime_utc ? toUKTime(m.datetime_utc) : "00:00");
+      const venue = (m.venue === "A") ? "A" : "H";
+      const comp = String(m.competition || "OTHER").toUpperCase();
+      const opponent = m.opponent || "—";
+      const id = m.id || `${date}-${slug(comp)}-${slug(opponent)}-${venue.toLowerCase()}-${String(time).replace(":","")}`;
+
+      return {
+        id,
+        season: seasonLabel,
+        date,
+        time,
+        datetime_utc: m.datetime_utc || (date ? `${date}T${String(time).padStart(5,"0")}:00Z` : ""),
+        competition: comp,
+        opponent,
+        venue,
+        location: m.location || "",
+        homeGoals: (typeof m.homeGoals === "number") ? m.homeGoals : null,
+        awayGoals: (typeof m.awayGoals === "number") ? m.awayGoals : null,
+      };
+    }
+
+    // football-data fallback mapping
     const isHome = m.home === "Liverpool FC";
     const venue = isHome ? "H" : "A";
     const opponent = isHome ? m.away : m.home;
 
-    const dt = new Date(m.utcDate); // football-data gives UTC ISO
+    const utcIso = m.utcDate || "";
+    const dt = new Date(utcIso);
     const date = dt.toISOString().slice(0, 10);
+    const time = toUKTime(utcIso);
 
-    // UK time (Europe/London)
-    const parts = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/London",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(dt).split(":");
-    const time = `${parts[0]}:${parts[1]}`;
-
-    const id = `${date}-${slug(m.competitionCode || m.competition || "other")}-${slug(opponent)}-${venue.toLowerCase()}-${time.replace(":", "")}`;
+    const comp = (m.competitionCode || m.competition || "OTHER").toUpperCase();
+    const id = `${date}-${slug(comp)}-${slug(opponent)}-${venue.toLowerCase()}-${time.replace(":", "")}`;
 
     return {
       id,
       season: seasonLabel,
       date,
       time,
-      datetime_utc: m.utcDate,
-      competition: m.competitionCode || m.competition || "OTHER",
+      datetime_utc: utcIso,
+      competition: comp,
       opponent,
       venue,
-      location: ""
+      location: "",
+      homeGoals: (typeof m.homeGoals === "number") ? m.homeGoals : null,
+      awayGoals: (typeof m.awayGoals === "number") ? m.awayGoals : null,
     };
   };
 
   try {
-    // IMPORTANT: use relative path so it works on GitHub Pages subpaths
-    // Try the normal GitHub Pages path first. If you’re serving from a subfolder,
-// this still resolves correctly because it’s relative to index.html.
-let res = await fetch("./data/lfc-fixtures.json", { cache: "no-store" });
+    // Relative path for GitHub Pages subpaths
+    const res = await fetch("./data/lfc-fixtures.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`Failed to load fixtures JSON: ${res.status}`);
 
-// Some dev setups keep the JSON under /public/data. Try that as a fallback.
-if (!res.ok) {
-  res = await fetch("./public/data/lfc-fixtures.json", { cache: "no-store" });
-}
+    const json = await res.json();
 
-if (!res.ok) throw new Error(`Failed to load fixtures JSON: ${res.status}`);
-const json = await res.json();
+    // Prefer seasonWindow.from if your generator writes it, else infer from earliest fixture date
+    const seasonFrom = (json.seasonWindow && json.seasonWindow.from) ? json.seasonWindow.from : (
+      (json.fixtures && json.fixtures[0] && json.fixtures[0].date) ? json.fixtures[0].date : ""
+    );
+    const seasonLabel = deriveSeasonLabel(seasonFrom);
 
-    // Derive season label from the JSON seasonWindow (e.g. 2025-08-01 -> "25/26")
-    const fromYear = (json.seasonWindow?.from || "").slice(0, 4);
-    const y = Number(fromYear);
-    const seasonLabel = (y && !Number.isNaN(y)) ? `${String(y).slice(2)}/${String(y + 1).slice(2)}` : "";
+    const src = Array.isArray(json.fixtures) ? json.fixtures : [];
+    const mapped = src.map(m => normalize(m, seasonLabel));
 
-    // football-data script writes { fixtures: [...] }
-    const mapped = (json.fixtures || []).map(m => toAppFixture(m, seasonLabel));
-
-    // Inject into your existing app pipeline
     el.textContent = JSON.stringify(mapped);
-    console.log("✅ Injected fixtures into #fixturesData:", mapped.length);
 
-    // Tell the app it can re-read fixtures now.
-    window.__THLFC_FIXTURES_INJECTED = true;
-    try { window.fixturesCache = null; } catch (e) {}
-    try { if (typeof window.renderFixtures === "function") window.renderFixtures(); } catch (e) {}
-
-    // OPTIONAL: if your app has an init function you need to re-run, call it here.
-    // Example:
-    // if (window.initApp) window.initApp();
-
+    console.log("✅ Injected fixtures into #fixturesData:", mapped.length, "Season:", seasonLabel || "(unknown)");
   } catch (err) {
     console.error("❌ Fixtures load failed, using empty []", err);
     el.textContent = "[]";
@@ -1878,22 +1916,17 @@ var fixturesCache = null;
 
 
 async function loadFixturesData() {
-  // If we already have real fixtures cached, use them.
-  if (Array.isArray(fixturesCache) && fixturesCache.length > 0) return fixturesCache;
+  if (fixturesCache) return fixturesCache;
 
-  // Always try reading the embedded JSON first (it may get injected asynchronously).
+  // Primary: embedded JSON in index.html (offline + SW-safe)
   try {
     const el = document.getElementById("fixturesData");
-    const raw = el ? (el.textContent || "").trim() : "";
-    if (raw) {
-      const arr = JSON.parse(raw);
-      if (Array.isArray(arr) && arr.length > 0) {
-        fixturesCache = arr;
-        return fixturesCache;
-      }
-      // If it's valid but empty, don't permanently cache it yet — allow re-check after injection.
+    if (el && el.textContent) {
+      const arr = JSON.parse(el.textContent);
+      fixturesCache = Array.isArray(arr) ? arr : [];
+      return fixturesCache;
     }
-  } catch (e) {}
+  } catch(e) {}
 
   // Fallback: imported fixtures from localStorage
   try {
@@ -1902,7 +1935,7 @@ async function loadFixturesData() {
       fixturesCache = imported.slice();
       return fixturesCache;
     }
-  } catch (e) {}
+  } catch(e) {}
 
   fixturesCache = [];
   return fixturesCache;
