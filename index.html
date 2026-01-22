@@ -724,32 +724,76 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
   const el = document.getElementById("fixturesData");
   if (!el) return;
 
-  try {
-    // Your repo serves fixtures at /public/data/lfc-fixtures.json (GitHub Pages project site)
-    const res = await fetch("./public/data/lfc-fixtures.json", { cache: "no-store" });
-    if (!res.ok) throw new Error(`Failed to load fixtures JSON: ${res.status}`);
+  async function fetchSeasonFixtures(seasonId) {
+    // seasonId like "2025-26"
+    const url = `./data/lfc-fixtures-${seasonId}.json`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+    return res.json();
+  }
 
-    const json = await res.json();
+  function toAppFixture(f, seasonLabel) {
+    // f is already in your app-friendly shape from the ICS script
+    // Ensure competition codes are what your filters expect:
+    const comp = (["PL","UCL","FAC","LC","OTHER"].includes(f.competition)) ? f.competition : "OTHER";
 
-    // Expect shape: { fixtures: [...] } from scripts/fetch-lfc-ics.mjs
-    const fixtures = Array.isArray(json.fixtures) ? json.fixtures : [];
+    return {
+      id: f.id,
+      season: seasonLabel || "",
+      date: f.date,
+      time: f.time,
+      datetime_utc: f.datetime_utc,
+      competition: comp,
+      opponent: f.opponent,
+      venue: f.venue,
+      location: f.location || ""
+    };
+  }
 
-    // Normalise fields for the app (filters expect PL/UCL/FAC/LC/OTHER and H/A)
-    for (const f of fixtures) {
-      f.competition = String(f.competition || "OTHER").toUpperCase();
-      if (!["PL","UCL","FAC","LC","OTHER"].includes(f.competition)) f.competition = "OTHER";
-      f.venue = (String(f.venue || "H").toUpperCase() === "A") ? "A" : "H";
-      if (f.time) f.time = String(f.time).slice(0,5);
-    }
+  async function injectForSeason(seasonId) {
+    const json = await fetchSeasonFixtures(seasonId);
+    const seasonLabel = json.seasonLabel || "";
 
-    el.textContent = JSON.stringify(fixtures);
-    console.log("✅ Injected fixtures into #fixturesData:", fixtures.length);
-  } catch (err) {
-    console.error("❌ Fixtures load failed, using empty []", err);
-    el.textContent = "[]";
+    const mapped = (json.fixtures || []).map(f => toAppFixture(f, seasonLabel));
+    el.textContent = JSON.stringify(mapped);
+
+    // refresh fixtures UI if it’s already open
+    try {
+      if (window.__THLFC_INITED) {
+        window.fixturesCache = null;
+        if (typeof window.renderFixtures === "function") window.renderFixtures();
+      }
+    } catch (e) {}
+  }
+
+  // Hook into your season dropdown
+  function bindSeasonReload() {
+    const seasonSel = document.getElementById("seasonSelect");
+    if (!seasonSel) return;
+
+    // initial load
+    injectForSeason(seasonSel.value).catch(err => {
+      console.error("❌ Season fixtures load failed", err);
+      el.textContent = "[]";
+    });
+
+    seasonSel.addEventListener("change", () => {
+      injectForSeason(seasonSel.value).catch(err => {
+        console.error("❌ Season fixtures load failed", err);
+        el.textContent = "[]";
+      });
+    });
+  }
+
+  // wait until your app has built the season dropdown
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindSeasonReload);
+  } else {
+    bindSeasonReload();
   }
 })();
 </script>
+
 
 <script>
 /* Inlined app script (single-file build) */
