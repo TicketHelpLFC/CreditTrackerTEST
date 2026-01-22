@@ -2,7 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const OUT = path.join("public", "data", "lfc-fixtures.json");
+const DATA_DIR = path.join("public", "data");
+const INDEX_OUT = path.join(DATA_DIR, "lfc-fixtures-index.json");
 
 const ICS_URL = process.env.LFC_ICS_URL;
 if (!ICS_URL) {
@@ -10,21 +11,6 @@ if (!ICS_URL) {
   process.exit(1);
 }
 
-// Keep only 2025/26 season window
-const FROM = "2025-08-01";
-const TO   = "2026-07-31";
-
-// Manual competition overrides (date|opponentSlug -> comp)
-const COMP_OVERRIDES = new Map([
-  // Example: ["2026-03-21|brightonandhovealbion", "PL"],
-  ["2026-03-21|brighton", "PL"],
-]);
-
-// If opponent naming varies in the calendar (e.g. "Brighton" vs "Brighton & Hove Albion"),
-// you can override by date alone here.
-const COMP_DATE_OVERRIDES = new Map([
-  ["2026-03-21", "PL"],
-]);
 const slug = (s) =>
   String(s || "")
     .toLowerCase()
@@ -37,8 +23,17 @@ function unwrapIcsText(raw) {
   return raw.replace(/\r?\n[ \t]/g, "");
 }
 
+function getLine(block, key) {
+  const re = new RegExp(`^${key}(?:;[^:]*)?:(.*)$`, "m");
+  const m = block.match(re);
+  return m ? (m[1] || "").trim() : "";
+}
+
 function parseDTSTART(v) {
-  // 20260131T200000Z / 20260131T200000 / 20260131
+  // Examples:
+  // 20260131T200000Z
+  // 20260131T200000
+  // 20260131
   const m = String(v || "").match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2}))?/);
   if (!m) return null;
   const date = `${m[1]}-${m[2]}-${m[3]}`;
@@ -48,69 +43,65 @@ function parseDTSTART(v) {
   return { date, time, hh, mm };
 }
 
-function getLine(block, key) {
-  const re = new RegExp(`^${key}(?:;[^:]*)?:(.*)$`, "m");
-  const m = block.match(re);
-  return m ? (m[1] || "").trim() : "";
-}
+function parseTeamsAndScore(summary) {
+  const s = (summary || "").trim();
 
-function cleanSummary(s) {
-  // remove common emojis + tidy spaces (incl. NBSP)
-  return String(s || "")
-    .replace(/[⚽️🔴🟥🟢✅❌⭐️]/g, "")
-    .replace(/\u00a0/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+  // Common patterns:
+  // "Team A v Team B"
+  const vs = s.match(/^(.+?)\s+v(?:s)?\.?\s+(.+?)$/i);
+  if (vs) return { home: vs[1].trim(), away: vs[2].trim(), homeGoals: null, awayGoals: null };
 
-function splitTeams(summaryRaw) {
-  const s = cleanSummary(summaryRaw);
-
-  // Score format: "Team A 2-0 Team B"
+  // "Team A 2-0 Team B"
   const sc = s.match(/^(.+?)\s+(\d+)\s*[-–]\s*(\d+)\s+(.+?)$/);
   if (sc) {
-    return { a: sc[1].trim(), b: sc[4].trim(), homeGoals: Number(sc[2]), awayGoals: Number(sc[3]) };
+    return {
+      home: sc[1].trim(),
+      away: sc[4].trim(),
+      homeGoals: Number(sc[2]),
+      awayGoals: Number(sc[3]),
+    };
   }
 
-  // Vs: "Team A v Team B" / "vs"
-  const vs = s.match(/^(.+?)\s+v(?:s)?\.?\s+(.+?)$/i);
-  if (vs) {
-    return { a: vs[1].trim(), b: vs[2].trim(), homeGoals: null, awayGoals: null };
-  }
-
-  // Dash: "Team A – Team B" / "Team A - Team B" / "Team A — Team B"
-  const dash = s.match(/^(.+?)\s*[–—-]\s*(.+?)$/);
-  if (dash) {
-    return { a: dash[1].trim(), b: dash[2].trim(), homeGoals: null, awayGoals: null };
-  }
-
-  return { a: "", b: "", homeGoals: null, awayGoals: null };
+  return { home: "", away: "", homeGoals: null, awayGoals: null };
 }
 
 function detectCompetition(summary, description, location) {
   const hay = `${summary} ${description} ${location}`.toLowerCase();
 
   if (hay.includes("champions league") || hay.includes("uefa champions league") || hay.includes("ucl")) return "UCL";
-  if (hay.includes("fa cup") || hay.includes("emirates fa cup")) return "FAC";
-  if (hay.includes("carabao") || hay.includes("efl cup") || hay.includes("league cup")) return "LC";
+  if (hay.includes("fa cup") || hay.includes("emirates fa cup") || hay.includes("fac")) return "FAC";
+  if (hay.includes("carabao") || hay.includes("league cup") || hay.includes("efl cup") || hay.includes("lc")) return "LC";
+  if (hay.includes("premier league") || hay.includes("pl")) return "PL";
 
-  // Explicit "not league" things should stay OTHER
-  if (hay.includes("friendly") || hay.includes("pre-season") || hay.includes("club friendly")) return "OTHER";
-  if (hay.includes("community shield") || hay.includes("super cup")) return "OTHER";
-
-  // Google ICS often doesn’t say "Premier League" for actual league matches.
-  // For real matches involving Liverpool, default to PL.
-  return "PL";
+  return "OTHER";
 }
 
-function isNonMatchEvent(summaryRaw) {
-  const s = cleanSummary(summaryRaw).toLowerCase();
-  if (!s) return true;
-  // obvious admin items
-  if (s.includes("draw")) return true;
-  if (s.includes("fixture release")) return true;
-  if (s.includes("kick-off times")) return true;
-  return false;
+// Competition override (optional) — add future fixes here
+// Key formats supported:
+// 1) "YYYY-MM-DD|opponentslug"  (preferred)
+// 2) "YYYY-MM-DD"               (fallback if opponent naming varies)
+const COMP_OVERRIDES = new Map([
+  ["2026-03-21|brighton", "PL"],  // example fix you’ve needed
+  // ["2026-04-01", "PL"],
+]);
+
+function seasonIdForDate(dateStr) {
+  // Season runs Aug -> Jul
+  const y = Number(dateStr.slice(0, 4));
+  const m = Number(dateStr.slice(5, 7));
+  const startYear = (m >= 8) ? y : (y - 1);
+  return `${startYear}-${String(startYear + 1).slice(-2)}`; // "2025-26"
+}
+
+function seasonWindowFromSeasonId(seasonId) {
+  // "2025-26" => from "2025-08-01" to "2026-07-31"
+  const startYear = Number(String(seasonId).slice(0, 4));
+  const endYear = startYear + 1;
+  return {
+    from: `${startYear}-08-01`,
+    to: `${endYear}-07-31`,
+    label: `${String(startYear).slice(-2)}/${String(endYear).slice(-2)}`, // "25/26"
+  };
 }
 
 function parseICS(icsRaw) {
@@ -118,6 +109,7 @@ function parseICS(icsRaw) {
   const blocks = ics.split("BEGIN:VEVENT").slice(1).map((b) => "BEGIN:VEVENT" + b);
 
   const out = [];
+  const LFC = "liverpool";
 
   for (const block of blocks) {
     const dtstart = getLine(block, "DTSTART");
@@ -126,46 +118,38 @@ function parseICS(icsRaw) {
     const dt = parseDTSTART(dtstart);
     if (!dt) continue;
 
-    // season window filter
-    if (dt.date < FROM || dt.date > TO) continue;
-
-    const summaryRaw = getLine(block, "SUMMARY");
-    const summary = cleanSummary(summaryRaw);
+    const summary = getLine(block, "SUMMARY");
     const description = getLine(block, "DESCRIPTION");
     const location = getLine(block, "LOCATION");
 
-    if (isNonMatchEvent(summary)) continue;
+    const { home, away, homeGoals, awayGoals } = parseTeamsAndScore(summary);
 
-    const { a: teamA, b: teamB, homeGoals, awayGoals } = splitTeams(summary);
+    // ✅ IMPORTANT: skip non-match events (draws, announcements, etc.)
+    // Only keep events where Liverpool is clearly one of the teams.
+    const homeIsLfc = home && home.toLowerCase().includes(LFC);
+    const awayIsLfc = away && away.toLowerCase().includes(LFC);
+    if (!homeIsLfc && !awayIsLfc) continue;
 
-    // Must have 2 teams
-    if (!teamA || !teamB) continue;
+    let venue = "H";
+    let opponent = "—";
 
-    const LFC = "liverpool";
-    const aIsLfc = teamA.toLowerCase().includes(LFC);
-    const bIsLfc = teamB.toLowerCase().includes(LFC);
-
-    // Must include Liverpool
-    if (!aIsLfc && !bIsLfc) continue;
-
-    // If Liverpool is left => treat as Home, right => Away
-    const venue = aIsLfc ? "H" : "A";
-    const opponent = aIsLfc ? teamB : teamA;
+    if (homeIsLfc) {
+      venue = "H";
+      opponent = away || opponent;
+    } else {
+      venue = "A";
+      opponent = home || opponent;
+    }
 
     let competition = detectCompetition(summary, description, location);
-// Apply manual overrides
-// 1) Date-only override (strongest)
-if (COMP_DATE_OVERRIDES.has(dt.date)) {
-  competition = COMP_DATE_OVERRIDES.get(dt.date);
-} else {
-  // 2) Date + opponent slug override
-  const overrideKey = `${dt.date}|${slug(opponent)}`;
-  if (COMP_OVERRIDES.has(overrideKey)) {
-    competition = COMP_OVERRIDES.get(overrideKey);
-  }
-}
-const id = `${dt.date}-${slug(competition)}-${slug(opponent)}-${venue.toLowerCase()}-${dt.time.replace(":", "")}`;
 
+    // Apply manual overrides (date|opponentSlug first, then date-only)
+    const key1 = `${dt.date}|${slug(opponent)}`;
+    const key2 = `${dt.date}`;
+    if (COMP_OVERRIDES.has(key1)) competition = COMP_OVERRIDES.get(key1);
+    else if (COMP_OVERRIDES.has(key2)) competition = COMP_OVERRIDES.get(key2);
+
+    const id = `${dt.date}-${slug(competition)}-${slug(opponent)}-${venue.toLowerCase()}-${dt.time.replace(":", "")}`;
 
     out.push({
       source: "ics",
@@ -173,9 +157,9 @@ const id = `${dt.date}-${slug(competition)}-${slug(opponent)}-${venue.toLowerCas
       date: dt.date,
       time: dt.time,
       datetime_utc: `${dt.date}T${dt.hh}:${dt.mm}:00Z`,
-      competition,     // PL / UCL / FAC / LC / OTHER
+      competition, // PL / UCL / FAC / LC / OTHER
       opponent,
-      venue,           // H / A
+      venue,       // H / A
       location: location || "",
       homeGoals,
       awayGoals,
@@ -192,18 +176,63 @@ async function main() {
   if (!res.ok) throw new Error(`Failed to fetch ICS: HTTP ${res.status}`);
 
   const text = await res.text();
-  const fixtures = parseICS(text).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const fixturesAll = parseICS(text);
 
-  fs.mkdirSync(path.dirname(OUT), { recursive: true });
+  // Group by seasonId
+  const bySeason = new Map();
+  for (const f of fixturesAll) {
+    const sid = seasonIdForDate(f.date);
+    if (!bySeason.has(sid)) bySeason.set(sid, []);
+    bySeason.get(sid).push(f);
+  }
+
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+
+  // Write each season file
+  const seasonsOut = [];
+  for (const [seasonId, arr] of Array.from(bySeason.entries()).sort(([a],[b]) => a.localeCompare(b))) {
+    const win = seasonWindowFromSeasonId(seasonId);
+    arr.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+    const outFile = path.join(DATA_DIR, `lfc-fixtures-${seasonId}.json`);
+    fs.writeFileSync(
+      outFile,
+      JSON.stringify(
+        {
+          generatedAt: new Date().toISOString(),
+          source: "google-ics",
+          seasonId,
+          seasonLabel: win.label,
+          seasonWindow: { from: win.from, to: win.to },
+          count: arr.length,
+          fixtures: arr,
+        },
+        null,
+        2
+      ),
+      "utf8"
+    );
+
+    seasonsOut.push({
+      seasonId,
+      seasonLabel: win.label,
+      from: win.from,
+      to: win.to,
+      count: arr.length,
+      file: `data/lfc-fixtures-${seasonId}.json`,
+    });
+
+    console.log(`Saved ${arr.length} fixtures to ${outFile}`);
+  }
+
+  // Write index file listing seasons available
   fs.writeFileSync(
-    OUT,
+    INDEX_OUT,
     JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
         source: "google-ics",
-        seasonWindow: { from: FROM, to: TO },
-        count: fixtures.length,
-        fixtures,
+        seasons: seasonsOut,
       },
       null,
       2
@@ -211,7 +240,7 @@ async function main() {
     "utf8"
   );
 
-  console.log(`Saved ${fixtures.length} fixtures (filtered ${FROM} → ${TO}) to ${OUT}`);
+  console.log(`Saved seasons index to ${INDEX_OUT}`);
 }
 
 main().catch((e) => {
