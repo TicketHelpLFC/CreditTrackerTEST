@@ -724,7 +724,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
   try {
     // GitHub Pages / Netlify: "public" is web root, so use /data/...
-    const res = await fetch("./data/lfc-fixtures.json", { cache: "no-store" });
+    const res = await fetch("./public/data/lfc-fixtures.json", { cache: "no-store" });
     if (!res.ok) throw new Error(`Failed to load lfc-fixtures.json: ${res.status}`);
 
     const json = await res.json();
