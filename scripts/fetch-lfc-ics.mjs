@@ -151,6 +151,15 @@ function parseICS(icsRaw) {
 
     let competition = detectCompetition(summary, description, location);
 
+    if (dt.date === "2026-03-21") {
+  console.log("DEBUG date:", dt.date);
+  console.log("DEBUG opponent:", opponent);
+  console.log("DEBUG slug(opponent):", slug(opponent));
+  console.log("DEBUG overrideKey:", `${dt.date}|${slug(opponent)}`);
+  console.log("DEBUG override exists:", COMP_OVERRIDES.has(`${dt.date}|${slug(opponent)}`));
+}
+
+
 // Apply manual overrides
 const overrideKey = `${dt.date}|${slug(opponent)}`;
 if (COMP_OVERRIDES.has(overrideKey)) {
