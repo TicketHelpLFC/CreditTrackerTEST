@@ -14,6 +14,12 @@ if (!ICS_URL) {
 const FROM = "2025-08-01";
 const TO   = "2026-07-31";
 
+const COMP_OVERRIDES = new Map([
+  ["2026-03-21|brighton", "PL"],
+]);
+
+
+
 const slug = (s) =>
   String(s || "")
     .toLowerCase()
