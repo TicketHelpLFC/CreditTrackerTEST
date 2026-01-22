@@ -27,10 +27,7 @@ function unwrapIcsText(raw) {
 }
 
 function parseDTSTART(v) {
-  // Examples:
-  // 20260131T200000Z
-  // 20260131T200000
-  // 20260131
+  // 20260131T200000Z / 20260131T200000 / 20260131
   const m = String(v || "").match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2}))?/);
   if (!m) return null;
   const date = `${m[1]}-${m[2]}-${m[3]}`;
@@ -47,9 +44,10 @@ function getLine(block, key) {
 }
 
 function cleanSummary(s) {
-  // Strip common emojis / trim weird spaces
+  // remove common emojis + tidy spaces (incl. NBSP)
   return String(s || "")
     .replace(/[⚽️🔴🟥🟢✅❌⭐️]/g, "")
+    .replace(/\u00a0/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -63,14 +61,13 @@ function splitTeams(summaryRaw) {
     return { a: sc[1].trim(), b: sc[4].trim(), homeGoals: Number(sc[2]), awayGoals: Number(sc[3]) };
   }
 
-  // Vs format: "Team A v Team B" / "vs"
+  // Vs: "Team A v Team B" / "vs"
   const vs = s.match(/^(.+?)\s+v(?:s)?\.?\s+(.+?)$/i);
   if (vs) {
     return { a: vs[1].trim(), b: vs[2].trim(), homeGoals: null, awayGoals: null };
   }
 
-  // Dash format: "Team A – Team B" / "Team A - Team B"
-  // (includes en dash / em dash)
+  // Dash: "Team A – Team B" / "Team A - Team B" / "Team A — Team B"
   const dash = s.match(/^(.+?)\s*[–—-]\s*(.+?)$/);
   if (dash) {
     return { a: dash[1].trim(), b: dash[2].trim(), homeGoals: null, awayGoals: null };
@@ -86,18 +83,23 @@ function detectCompetition(summary, description, location) {
   if (hay.includes("fa cup") || hay.includes("emirates fa cup")) return "FAC";
   if (hay.includes("carabao") || hay.includes("efl cup") || hay.includes("league cup")) return "LC";
 
-  // Google ICS often doesn't say "Premier League" anywhere.
-  // For actual matches (two teams, includes Liverpool) we default to PL.
+  // Explicit "not league" things should stay OTHER
+  if (hay.includes("friendly") || hay.includes("pre-season") || hay.includes("club friendly")) return "OTHER";
+  if (hay.includes("community shield") || hay.includes("super cup")) return "OTHER";
+
+  // Google ICS often doesn’t say "Premier League" for actual league matches.
+  // For real matches involving Liverpool, default to PL.
   return "PL";
 }
 
-function isLikelyRealMatch(summaryRaw, teamA, teamB) {
+function isNonMatchEvent(summaryRaw) {
   const s = cleanSummary(summaryRaw).toLowerCase();
-  if (!teamA || !teamB) return false;              // draw events / placeholders
-  if (!s.includes("liverpool")) return false;      // not a Liverpool match
-  // Exclude obvious admin events even if they contain Liverpool somehow
-  if (s.includes("draw")) return false;
-  return true;
+  if (!s) return true;
+  // obvious admin items
+  if (s.includes("draw")) return true;
+  if (s.includes("fixture release")) return true;
+  if (s.includes("kick-off times")) return true;
+  return false;
 }
 
 function parseICS(icsRaw) {
@@ -121,18 +123,21 @@ function parseICS(icsRaw) {
     const description = getLine(block, "DESCRIPTION");
     const location = getLine(block, "LOCATION");
 
+    if (isNonMatchEvent(summary)) continue;
+
     const { a: teamA, b: teamB, homeGoals, awayGoals } = splitTeams(summary);
 
-    if (!isLikelyRealMatch(summary, teamA, teamB)) continue;
+    // Must have 2 teams
+    if (!teamA || !teamB) continue;
 
     const LFC = "liverpool";
     const aIsLfc = teamA.toLowerCase().includes(LFC);
     const bIsLfc = teamB.toLowerCase().includes(LFC);
 
-    // If Liverpool isn't one of the teams, skip
+    // Must include Liverpool
     if (!aIsLfc && !bIsLfc) continue;
 
-    // If Liverpool is left side => Home, right side => Away (for our purposes)
+    // If Liverpool is left => treat as Home, right => Away
     const venue = aIsLfc ? "H" : "A";
     const opponent = aIsLfc ? teamB : teamA;
 
@@ -146,9 +151,9 @@ function parseICS(icsRaw) {
       date: dt.date,
       time: dt.time,
       datetime_utc: `${dt.date}T${dt.hh}:${dt.mm}:00Z`,
-      competition,          // PL / UCL / FAC / LC
+      competition,     // PL / UCL / FAC / LC / OTHER
       opponent,
-      venue,                // H / A
+      venue,           // H / A
       location: location || "",
       homeGoals,
       awayGoals,
