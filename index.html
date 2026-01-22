@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
   <title>TicketHelpLFC – Credit Tracker</title>
- 
+  <link rel="stylesheet" href="styles.css" />
 <style>
 :root{
   --bg:#0b0b0b;
@@ -723,12 +723,22 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
   if (!el) return;
 
   try {
-    // GitHub Pages / Netlify: "public" is web root, so use /data/...
+    // Your repo serves fixtures at /public/data/lfc-fixtures.json (GitHub Pages project site)
     const res = await fetch("./public/data/lfc-fixtures.json", { cache: "no-store" });
-    if (!res.ok) throw new Error(`Failed to load lfc-fixtures.json: ${res.status}`);
+    if (!res.ok) throw new Error(`Failed to load fixtures JSON: ${res.status}`);
 
     const json = await res.json();
+
+    // Expect shape: { fixtures: [...] } from scripts/fetch-lfc-ics.mjs
     const fixtures = Array.isArray(json.fixtures) ? json.fixtures : [];
+
+    // Normalise fields for the app (filters expect PL/UCL/FAC/LC/OTHER and H/A)
+    for (const f of fixtures) {
+      f.competition = String(f.competition || "OTHER").toUpperCase();
+      if (!["PL","UCL","FAC","LC","OTHER"].includes(f.competition)) f.competition = "OTHER";
+      f.venue = (String(f.venue || "H").toUpperCase() === "A") ? "A" : "H";
+      if (f.time) f.time = String(f.time).slice(0,5);
+    }
 
     el.textContent = JSON.stringify(fixtures);
     console.log("✅ Injected fixtures into #fixturesData:", fixtures.length);
@@ -737,6 +747,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
     el.textContent = "[]";
   }
 })();
+</script>
 
 <script>
 /* Inlined app script (single-file build) */
