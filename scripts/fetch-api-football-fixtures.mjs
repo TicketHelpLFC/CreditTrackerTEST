@@ -14,6 +14,8 @@ async function api(path, params = {}) {
   const url = new URL(BASE + path);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
 
+  console.log("GET", url.toString());
+
   const res = await fetch(url, {
     headers: { "X-Auth-Token": TOKEN }, // required auth header
   });
@@ -23,6 +25,7 @@ async function api(path, params = {}) {
   }
   return res.json();
 }
+
 
 function seasonStartYear(now = new Date()) {
   // Football seasons typically start around July/Aug
