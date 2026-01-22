@@ -10,9 +10,9 @@ if (!ICS_URL) {
   process.exit(1);
 }
 
-// ✅ Keep only 2025/26 season window
+// Keep only 2025/26 season window
 const FROM = "2025-08-01";
-const TO = "2026-07-31";
+const TO   = "2026-07-31";
 
 const slug = (s) =>
   String(s || "")
@@ -27,30 +27,15 @@ function unwrapIcsText(raw) {
 }
 
 function parseDTSTART(v) {
-  // Handles:
+  // Examples:
   // 20260131T200000Z
   // 20260131T200000
-  // 20260131T200000+0100
   // 20260131
-  const s = String(v || "").trim();
-
-  const dateDigits = s.match(/(\d{8})/);
-  if (!dateDigits) return null;
-
-  const ymd = dateDigits[1];
-  const date = `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
-
-  let hh = "00",
-    mm = "00";
-  const tIndex = s.indexOf("T");
-  if (tIndex !== -1) {
-    const timeDigits = s.slice(tIndex + 1).match(/^(\d{2})(\d{2})(\d{2})?/);
-    if (timeDigits) {
-      hh = timeDigits[1];
-      mm = timeDigits[2];
-    }
-  }
-
+  const m = String(v || "").match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2}))?/);
+  if (!m) return null;
+  const date = `${m[1]}-${m[2]}-${m[3]}`;
+  const hh = m[4] || "00";
+  const mm = m[5] || "00";
   const time = `${hh}:${mm}`;
   return { date, time, hh, mm };
 }
@@ -61,43 +46,58 @@ function getLine(block, key) {
   return m ? (m[1] || "").trim() : "";
 }
 
-function parseTeamsAndScore(summary) {
-  const s = (summary || "").trim();
+function cleanSummary(s) {
+  // Strip common emojis / trim weird spaces
+  return String(s || "")
+    .replace(/[⚽️🔴🟥🟢✅❌⭐️]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  // "Team A v Team B"
-  const vs = s.match(/^(.+?)\s+v(?:s)?\.?\s+(.+?)$/i);
-  if (vs) return { home: vs[1].trim(), away: vs[2].trim(), homeGoals: null, awayGoals: null };
+function splitTeams(summaryRaw) {
+  const s = cleanSummary(summaryRaw);
 
-  // "Team A 2-0 Team B"
+  // Score format: "Team A 2-0 Team B"
   const sc = s.match(/^(.+?)\s+(\d+)\s*[-–]\s*(\d+)\s+(.+?)$/);
   if (sc) {
-    return {
-      home: sc[1].trim(),
-      away: sc[4].trim(),
-      homeGoals: Number(sc[2]),
-      awayGoals: Number(sc[3]),
-    };
+    return { a: sc[1].trim(), b: sc[4].trim(), homeGoals: Number(sc[2]), awayGoals: Number(sc[3]) };
   }
 
-  return { home: "", away: "", homeGoals: null, awayGoals: null };
+  // Vs format: "Team A v Team B" / "vs"
+  const vs = s.match(/^(.+?)\s+v(?:s)?\.?\s+(.+?)$/i);
+  if (vs) {
+    return { a: vs[1].trim(), b: vs[2].trim(), homeGoals: null, awayGoals: null };
+  }
+
+  // Dash format: "Team A – Team B" / "Team A - Team B"
+  // (includes en dash / em dash)
+  const dash = s.match(/^(.+?)\s*[–—-]\s*(.+?)$/);
+  if (dash) {
+    return { a: dash[1].trim(), b: dash[2].trim(), homeGoals: null, awayGoals: null };
+  }
+
+  return { a: "", b: "", homeGoals: null, awayGoals: null };
 }
 
 function detectCompetition(summary, description, location) {
   const hay = `${summary} ${description} ${location}`.toLowerCase();
 
-  // Champions League
   if (hay.includes("champions league") || hay.includes("uefa champions league") || hay.includes("ucl")) return "UCL";
+  if (hay.includes("fa cup") || hay.includes("emirates fa cup")) return "FAC";
+  if (hay.includes("carabao") || hay.includes("efl cup") || hay.includes("league cup")) return "LC";
 
-  // FA Cup
-  if (hay.includes("fa cup") || hay.includes("emirates fa cup") || hay.includes("fac")) return "FAC";
+  // Google ICS often doesn't say "Premier League" anywhere.
+  // For actual matches (two teams, includes Liverpool) we default to PL.
+  return "PL";
+}
 
-  // League Cup / Carabao / EFL Cup
-  if (hay.includes("carabao") || hay.includes("league cup") || hay.includes("efl cup") || hay.includes("lc")) return "LC";
-
-  // Premier League
-  if (hay.includes("premier league") || hay.includes("pl")) return "PL";
-
-  return "OTHER";
+function isLikelyRealMatch(summaryRaw, teamA, teamB) {
+  const s = cleanSummary(summaryRaw).toLowerCase();
+  if (!teamA || !teamB) return false;              // draw events / placeholders
+  if (!s.includes("liverpool")) return false;      // not a Liverpool match
+  // Exclude obvious admin events even if they contain Liverpool somehow
+  if (s.includes("draw")) return false;
+  return true;
 }
 
 function parseICS(icsRaw) {
@@ -113,25 +113,28 @@ function parseICS(icsRaw) {
     const dt = parseDTSTART(dtstart);
     if (!dt) continue;
 
-    const summary = getLine(block, "SUMMARY");
+    // season window filter
+    if (dt.date < FROM || dt.date > TO) continue;
+
+    const summaryRaw = getLine(block, "SUMMARY");
+    const summary = cleanSummary(summaryRaw);
     const description = getLine(block, "DESCRIPTION");
     const location = getLine(block, "LOCATION");
 
-    const { home, away, homeGoals, awayGoals } = parseTeamsAndScore(summary);
+    const { a: teamA, b: teamB, homeGoals, awayGoals } = splitTeams(summary);
+
+    if (!isLikelyRealMatch(summary, teamA, teamB)) continue;
 
     const LFC = "liverpool";
-    let venue = "H";
-    let opponent = summary || "—";
+    const aIsLfc = teamA.toLowerCase().includes(LFC);
+    const bIsLfc = teamB.toLowerCase().includes(LFC);
 
-    // Note: summary might have emoji prefix, so startsWith can fail.
-    // We'll still use parsed home/away when available.
-    if (home && home.toLowerCase().includes(LFC)) {
-      venue = "H";
-      opponent = away || opponent;
-    } else if (away && away.toLowerCase().includes(LFC)) {
-      venue = "A";
-      opponent = home || opponent;
-    }
+    // If Liverpool isn't one of the teams, skip
+    if (!aIsLfc && !bIsLfc) continue;
+
+    // If Liverpool is left side => Home, right side => Away (for our purposes)
+    const venue = aIsLfc ? "H" : "A";
+    const opponent = aIsLfc ? teamB : teamA;
 
     const competition = detectCompetition(summary, description, location);
 
@@ -143,9 +146,9 @@ function parseICS(icsRaw) {
       date: dt.date,
       time: dt.time,
       datetime_utc: `${dt.date}T${dt.hh}:${dt.mm}:00Z`,
-      competition, // PL / UCL / FAC / LC / OTHER (matches your filters)
+      competition,          // PL / UCL / FAC / LC
       opponent,
-      venue, // H / A
+      venue,                // H / A
       location: location || "",
       homeGoals,
       awayGoals,
@@ -162,12 +165,7 @@ async function main() {
   if (!res.ok) throw new Error(`Failed to fetch ICS: HTTP ${res.status}`);
 
   const text = await res.text();
-
-  // Parse + sort
-  const fixturesAll = parseICS(text).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-
-  // ✅ Filter to the 2025/26 window
-  const fixturesSeason = fixturesAll.filter((f) => f.date >= FROM && f.date <= TO);
+  const fixtures = parseICS(text).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(
@@ -177,8 +175,8 @@ async function main() {
         generatedAt: new Date().toISOString(),
         source: "google-ics",
         seasonWindow: { from: FROM, to: TO },
-        count: fixturesSeason.length,
-        fixtures: fixturesSeason,
+        count: fixtures.length,
+        fixtures,
       },
       null,
       2
@@ -186,7 +184,7 @@ async function main() {
     "utf8"
   );
 
-  console.log(`Saved ${fixturesSeason.length} fixtures (filtered ${FROM} → ${TO}) to ${OUT}`);
+  console.log(`Saved ${fixtures.length} fixtures (filtered ${FROM} → ${TO}) to ${OUT}`);
 }
 
 main().catch((e) => {
