@@ -16,12 +16,15 @@ const TO   = "2026-07-31";
 
 // Manual competition overrides (date|opponentSlug -> comp)
 const COMP_OVERRIDES = new Map([
+  // Example: ["2026-03-21|brightonandhovealbion", "PL"],
   ["2026-03-21|brighton", "PL"],
 ]);
 
-
-
-
+// If opponent naming varies in the calendar (e.g. "Brighton" vs "Brighton & Hove Albion"),
+// you can override by date alone here.
+const COMP_DATE_OVERRIDES = new Map([
+  ["2026-03-21", "PL"],
+]);
 const slug = (s) =>
   String(s || "")
     .toLowerCase()
@@ -150,22 +153,17 @@ function parseICS(icsRaw) {
     const opponent = aIsLfc ? teamB : teamA;
 
     let competition = detectCompetition(summary, description, location);
-
-    if (dt.date === "2026-03-21") {
-  console.log("DEBUG date:", dt.date);
-  console.log("DEBUG opponent:", opponent);
-  console.log("DEBUG slug(opponent):", slug(opponent));
-  console.log("DEBUG overrideKey:", `${dt.date}|${slug(opponent)}`);
-  console.log("DEBUG override exists:", COMP_OVERRIDES.has(`${dt.date}|${slug(opponent)}`));
-}
-
-
 // Apply manual overrides
-const overrideKey = `${dt.date}|${slug(opponent)}`;
-if (COMP_OVERRIDES.has(overrideKey)) {
-  competition = COMP_OVERRIDES.get(overrideKey);
+// 1) Date-only override (strongest)
+if (COMP_DATE_OVERRIDES.has(dt.date)) {
+  competition = COMP_DATE_OVERRIDES.get(dt.date);
+} else {
+  // 2) Date + opponent slug override
+  const overrideKey = `${dt.date}|${slug(opponent)}`;
+  if (COMP_OVERRIDES.has(overrideKey)) {
+    competition = COMP_OVERRIDES.get(overrideKey);
+  }
 }
-
 const id = `${dt.date}-${slug(competition)}-${slug(opponent)}-${venue.toLowerCase()}-${dt.time.replace(":", "")}`;
 
 
