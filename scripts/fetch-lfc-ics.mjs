@@ -14,9 +14,11 @@ if (!ICS_URL) {
 const FROM = "2025-08-01";
 const TO   = "2026-07-31";
 
+// Manual competition overrides (date|opponentSlug -> comp)
 const COMP_OVERRIDES = new Map([
   ["2026-03-21|brighton", "PL"],
 ]);
+
 
 
 
@@ -147,9 +149,16 @@ function parseICS(icsRaw) {
     const venue = aIsLfc ? "H" : "A";
     const opponent = aIsLfc ? teamB : teamA;
 
-    const competition = detectCompetition(summary, description, location);
+    let competition = detectCompetition(summary, description, location);
 
-    const id = `${dt.date}-${slug(competition)}-${slug(opponent)}-${venue.toLowerCase()}-${dt.time.replace(":", "")}`;
+// Apply manual overrides
+const overrideKey = `${dt.date}|${slug(opponent)}`;
+if (COMP_OVERRIDES.has(overrideKey)) {
+  competition = COMP_OVERRIDES.get(overrideKey);
+}
+
+const id = `${dt.date}-${slug(competition)}-${slug(opponent)}-${venue.toLowerCase()}-${dt.time.replace(":", "")}`;
+
 
     out.push({
       source: "ics",
