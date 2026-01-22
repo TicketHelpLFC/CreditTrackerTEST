@@ -10,6 +10,10 @@ if (!ICS_URL) {
   process.exit(1);
 }
 
+// ✅ Keep only 2025/26 season window
+const FROM = "2025-08-01";
+const TO = "2026-07-31";
+
 const slug = (s) =>
   String(s || "")
     .toLowerCase()
@@ -23,15 +27,30 @@ function unwrapIcsText(raw) {
 }
 
 function parseDTSTART(v) {
-  // Examples:
+  // Handles:
   // 20260131T200000Z
   // 20260131T200000
+  // 20260131T200000+0100
   // 20260131
-  const m = String(v || "").match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2}))?/);
-  if (!m) return null;
-  const date = `${m[1]}-${m[2]}-${m[3]}`;
-  const hh = m[4] || "00";
-  const mm = m[5] || "00";
+  const s = String(v || "").trim();
+
+  const dateDigits = s.match(/(\d{8})/);
+  if (!dateDigits) return null;
+
+  const ymd = dateDigits[1];
+  const date = `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
+
+  let hh = "00",
+    mm = "00";
+  const tIndex = s.indexOf("T");
+  if (tIndex !== -1) {
+    const timeDigits = s.slice(tIndex + 1).match(/^(\d{2})(\d{2})(\d{2})?/);
+    if (timeDigits) {
+      hh = timeDigits[1];
+      mm = timeDigits[2];
+    }
+  }
+
   const time = `${hh}:${mm}`;
   return { date, time, hh, mm };
 }
@@ -81,7 +100,6 @@ function detectCompetition(summary, description, location) {
   return "OTHER";
 }
 
-
 function parseICS(icsRaw) {
   const ics = unwrapIcsText(icsRaw);
   const blocks = ics.split("BEGIN:VEVENT").slice(1).map((b) => "BEGIN:VEVENT" + b);
@@ -105,10 +123,12 @@ function parseICS(icsRaw) {
     let venue = "H";
     let opponent = summary || "—";
 
-    if (home && home.toLowerCase().startsWith(LFC)) {
+    // Note: summary might have emoji prefix, so startsWith can fail.
+    // We'll still use parsed home/away when available.
+    if (home && home.toLowerCase().includes(LFC)) {
       venue = "H";
       opponent = away || opponent;
-    } else if (away && away.toLowerCase().startsWith(LFC)) {
+    } else if (away && away.toLowerCase().includes(LFC)) {
       venue = "A";
       opponent = home || opponent;
     }
@@ -123,9 +143,9 @@ function parseICS(icsRaw) {
       date: dt.date,
       time: dt.time,
       datetime_utc: `${dt.date}T${dt.hh}:${dt.mm}:00Z`,
-      competition,          // PL / UCL / FAC / LC / OTHER (matches your filters)
+      competition, // PL / UCL / FAC / LC / OTHER (matches your filters)
       opponent,
-      venue,                // H / A
+      venue, // H / A
       location: location || "",
       homeGoals,
       awayGoals,
@@ -142,7 +162,12 @@ async function main() {
   if (!res.ok) throw new Error(`Failed to fetch ICS: HTTP ${res.status}`);
 
   const text = await res.text();
-  const fixtures = parseICS(text).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+  // Parse + sort
+  const fixturesAll = parseICS(text).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+  // ✅ Filter to the 2025/26 window
+  const fixturesSeason = fixturesAll.filter((f) => f.date >= FROM && f.date <= TO);
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(
@@ -150,9 +175,10 @@ async function main() {
     JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
-        source: "ecal-ics",
-        count: fixtures.length,
-        fixtures,
+        source: "google-ics",
+        seasonWindow: { from: FROM, to: TO },
+        count: fixturesSeason.length,
+        fixtures: fixturesSeason,
       },
       null,
       2
@@ -160,7 +186,7 @@ async function main() {
     "utf8"
   );
 
-  console.log(`Saved ${fixtures.length} fixtures to ${OUT}`);
+  console.log(`Saved ${fixturesSeason.length} fixtures (filtered ${FROM} → ${TO}) to ${OUT}`);
 }
 
 main().catch((e) => {
