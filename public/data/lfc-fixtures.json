@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-01-22T14:19:30.933Z",
+  "generatedAt": "2026-01-22T13:18:09.558Z",
   "source": "google-ics",
   "seasonWindow": {
     "from": "2025-08-01",
@@ -198,7 +198,7 @@
       "competition": "UCL",
       "opponent": "Eintracht Frankfurt",
       "venue": "A",
-      "location": "Deutsche Bank Park\\nMörfelder Landstraße 362\\, 60528 Frankfurt\\, Germany",
+      "location": "Deutsche Bank Park\\nM\u00f6rfelder Landstra\u00dfe 362\\, 60528 Frankfurt\\, Germany",
       "homeGoals": null,
       "awayGoals": null
     },
@@ -458,7 +458,7 @@
       "competition": "UCL",
       "opponent": "Marseille",
       "venue": "A",
-      "location": "Stade Vélodrome\\nOrange Vélodrome",
+      "location": "Stade V\u00e9lodrome\\nOrange V\u00e9lodrome",
       "homeGoals": null,
       "awayGoals": null
     },
@@ -482,7 +482,7 @@
       "time": "20:00",
       "datetime_utc": "2026-01-28T20:00:00Z",
       "competition": "UCL",
-      "opponent": "Qarabağ",
+      "opponent": "Qaraba\u011f",
       "venue": "H",
       "location": "Anfield Stadium\\nAnfield Road\\, Liverpool\\, L4 0TH\\, England",
       "homeGoals": null,

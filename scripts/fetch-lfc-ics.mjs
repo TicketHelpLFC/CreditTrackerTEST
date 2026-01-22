@@ -2,8 +2,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const DATA_DIR = path.join("public", "data");
+const DATA_DIR = "data";
+const PUBLIC_DATA_DIR = path.join("public", "data");
 const INDEX_OUT = path.join(DATA_DIR, "lfc-fixtures-index.json");
+const PUBLIC_INDEX_OUT = path.join(PUBLIC_DATA_DIR, "lfc-fixtures-index.json");
 
 const ICS_URL = process.env.LFC_ICS_URL;
 if (!ICS_URL) {
@@ -46,7 +48,6 @@ function parseDTSTART(v) {
 function parseTeamsAndScore(summary) {
   const s = (summary || "").trim();
 
-  // Common patterns:
   // "Team A v Team B"
   const vs = s.match(/^(.+?)\s+v(?:s)?\.?\s+(.+?)$/i);
   if (vs) return { home: vs[1].trim(), away: vs[2].trim(), homeGoals: null, awayGoals: null };
@@ -76,13 +77,9 @@ function detectCompetition(summary, description, location) {
   return "OTHER";
 }
 
-// Competition override (optional) — add future fixes here
-// Key formats supported:
-// 1) "YYYY-MM-DD|opponentslug"  (preferred)
-// 2) "YYYY-MM-DD"               (fallback if opponent naming varies)
+// Manual competition overrides (date|opponentSlug preferred; date-only fallback)
 const COMP_OVERRIDES = new Map([
-  ["2026-03-21|brighton", "PL"],  // example fix you’ve needed
-  // ["2026-04-01", "PL"],
+  ["2026-03-21|brighton", "PL"], // Brighton override
 ]);
 
 function seasonIdForDate(dateStr) {
@@ -124,8 +121,7 @@ function parseICS(icsRaw) {
 
     const { home, away, homeGoals, awayGoals } = parseTeamsAndScore(summary);
 
-    // ✅ IMPORTANT: skip non-match events (draws, announcements, etc.)
-    // Only keep events where Liverpool is clearly one of the teams.
+    // Skip non-match events (draws, announcements, etc.)
     const homeIsLfc = home && home.toLowerCase().includes(LFC);
     const awayIsLfc = away && away.toLowerCase().includes(LFC);
     if (!homeIsLfc && !awayIsLfc) continue;
@@ -143,7 +139,7 @@ function parseICS(icsRaw) {
 
     let competition = detectCompetition(summary, description, location);
 
-    // Apply manual overrides (date|opponentSlug first, then date-only)
+    // Apply manual overrides
     const key1 = `${dt.date}|${slug(opponent)}`;
     const key2 = `${dt.date}`;
     if (COMP_OVERRIDES.has(key1)) competition = COMP_OVERRIDES.get(key1);
@@ -187,6 +183,7 @@ async function main() {
   }
 
   fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(PUBLIC_DATA_DIR, { recursive: true });
 
   // Write each season file
   const seasonsOut = [];
@@ -195,6 +192,7 @@ async function main() {
     arr.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
     const outFile = path.join(DATA_DIR, `lfc-fixtures-${seasonId}.json`);
+    const publicOutFile = path.join(PUBLIC_DATA_DIR, `lfc-fixtures-${seasonId}.json`);
     fs.writeFileSync(
       outFile,
       JSON.stringify(
@@ -212,6 +210,7 @@ async function main() {
       ),
       "utf8"
     );
+    fs.writeFileSync(publicOutFile, fs.readFileSync(outFile, "utf8"), "utf8");
 
     seasonsOut.push({
       seasonId,
@@ -239,6 +238,8 @@ async function main() {
     ),
     "utf8"
   );
+
+  fs.writeFileSync(PUBLIC_INDEX_OUT, fs.readFileSync(INDEX_OUT, "utf8"), "utf8");
 
   console.log(`Saved seasons index to ${INDEX_OUT}`);
 }
